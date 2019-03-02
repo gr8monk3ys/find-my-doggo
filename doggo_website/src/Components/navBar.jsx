@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import App from "../App";
 
 //IMPORT SEMANTIC
 import {Menu, Icon} from "semantic-ui-react";
@@ -11,16 +10,10 @@ class NavBar extends Component{
                 <Menu>
                     <Menu.Menu position = "left">
                         <Menu.Item>
-                            <Icon name = "home"/> Home
+                            <Icon name = "map"/> Map
                         </Menu.Item>
                         <Menu.Item>
-                            <Icon name = "user circle"/> About Me
-                        </Menu.Item>
-                        <Menu.Item>
-                            <Icon name = "keyboard"/> Work Experience
-                        </Menu.Item>
-                        <Menu.Item>
-                            <Icon name = "code"/> Skills
+                            <Icon name = "user circle"/> Contact Us
                         </Menu.Item>
                         <Menu.Item>
                             <Icon name = "github"/> Github
