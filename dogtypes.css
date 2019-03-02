@@ -1,0 +1,85 @@
+h1.dogtypes {
+font-family: helvetica;
+font-weight: 400;
+text-align: center;
+}
+
+/*td {
+  text-align: right;
+}*/
+
+
+th
+{
+  text-align: left;
+}
+
+/*Types of Dogs Heading*/
+
+th.column2 {
+  text-align: center;
+  font-size: 24px;
+  font-family: Helvetica
+
+}
+
+/*Types Body*/
+
+td.p4ing {
+  text-align: justify;
+  font-size: 18px;
+  font-family: helvetica;
+
+}
+
+th.column1 {
+  text-align: center;
+}
+
+
+
+h1.dogs {
+text-align: center;
+}
+
+th.dogs {
+  font-family: helvetica;
+  text-decoration-color: blue
+}
+
+/*img {
+   padding:1px;
+   border:1px solid #021a40;
+}*/
+
+h3.recipelist {
+  text-align: center;
+}
+
+/*Directions Body*/
+td.p4dir {
+  text-align: justify;
+  font-size: 18px;
+  font-family: Helvetica
+
+}
+
+/*Salmon Header Style*/
+.recipe {
+  background-color:#FFA07A;
+  padding: 50px 60px;
+  color: white;
+  text-align: center;
+  font-family: Helvetica;
+  font-size: 65px
+
+}
+
+/*Directions Heading*/
+strong.directions {
+  font-size: 24px;
+  font-family: Helvetica;
+
+}
+
+/*p4 ends here.*/
