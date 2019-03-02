@@ -13,14 +13,17 @@ import "./Assets/css/Container.css";
 class App extends Component {
   render() {
     return (
+      
       <React.Fragment>
         <NavBar/>
         <Container>
         <WorkExperience/>
         </Container>
       </React.Fragment>
-    );
+      
+      );
   }
+  
 }
 
 export default App;
