@@ -24,13 +24,13 @@ class WorkExperience extends Component {
                 <Divider/>
                 <Grid columns = "equal">
                     <Grid.Column width = {8}>
-                        <button className = "exp" onClick = {this.goToLostDog.bind(this)}> Lost Dog</button>
+                        <button className = "exp" onClick = {this.goToLostDog.bind(this)}> LostDog</button>
                         <div className = "panel">
                             If you lost your dog(s) post your photo(s) here.
                         </div>
                     </Grid.Column>
                     <Grid.Column width = {8}>
-                        <button className = "exp"onClick = {this.goToFoundDog.bind(this)}> Found Dog</button>
+                        <button className = "exp"onClick = {this.goToFoundDog.bind(this)}> FoundDog</button>
                         <div className = "panel">
                             If you found a dog(s), post your photo(s) here.
                         </div>
