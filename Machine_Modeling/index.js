@@ -12,7 +12,7 @@ const client = new automl.PredictionServiceClient();
 
 const projectId = 'find-my-doggo'
 const computeRegion = 'us-central1';
-const modelId = 'ICN5339171624016481546';
+const modelId = 'ICN5670580750199517716';
 const scoreThreshold = '0.5';
 
 const modelFullId = client.modelPath(projectId, computeRegion, modelId);
