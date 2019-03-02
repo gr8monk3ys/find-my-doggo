@@ -1,0 +1,30 @@
+.ui.menu{
+    background-color: rgb(44, 87, 167) !important;
+    margin-bottom: 0px;
+}
+
+.item:hover{
+    background-color: rgb(66, 18, 155) !important;
+    color: azure !important;
+    cursor:pointer;
+}
+
+.box{
+    width: 100%;
+    height: 400px;
+}
+
+.subHeaderImage{
+    height: 100%;
+    width: 100%;
+}
+
+.headerText{
+    position: absolute;
+    font-size: 30px;
+    color: white;
+    top: 100px;
+    left: 650px;
+
+}
+
