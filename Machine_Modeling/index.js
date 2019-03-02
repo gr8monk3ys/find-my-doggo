@@ -6,11 +6,11 @@ const admin = require('firebase-admin'); // v7.0.0
 admin.initializeApp();
 let db = admin.firestore();
 const storage = new Storage();
-const myBucket = storage.bucket('lorenzo-machine-learning-vcm');
+const myBucket = storage.bucket('find-my-doggo-vcm');
 
 const client = new automl.PredictionServiceClient();
 
-const projectId = 'lorenzo-machine-learning'
+const projectId = 'find-my-doggo'
 const computeRegion = 'us-central1';
 const modelId = 'ICN5339171624016481546';
 const scoreThreshold = '0.5';
@@ -20,7 +20,7 @@ const modelFullId = client.modelPath(projectId, computeRegion, modelId);
 exports.predictSkills = (data, context) => {
  console.log(`Processing file: ${data.name}`);
   const name = data.name;
-  const content = `gs://lorenzo-machine-learning-vcm/${data.name}`;
+  const content = `gs://find-my-doggo-vcm/${data.name}`;
   const file = myBucket.file(data.name);
   
   const params = {};
