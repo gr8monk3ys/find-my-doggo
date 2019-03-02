@@ -1,0 +1,34 @@
+<h3 onclick="goldenretrieverTitle()"> </h3>
+</br>
+<div onclick="dogTypes()" id="dogTitle">
+  <h6> Dog Breeds: Golden Retrievers </h6>
+  <ul>
+    <li> Golden Retriever </li>
+    <li> Type: </li>
+    <li> Last Location: </li>
+    <li> Environment/Surroundings: </li>
+    <li> Height: </li>
+    <li> Est. Wt.: </li>
+    <li> Age: </li>
+    <li> 
+  </ul>
+</div>
+
+<script>
+function dogTitle() {
+    var x = document.getElementById('dogTitle');
+    if (x.style.display === 'none') {
+      x.style.display = 'block';
+  } else {
+      x.style.display = 'none';
+  }
+}
+function dogTypes() {
+    var x = document.getElementById('dogTypes');
+    if (x.style.display === 'none') {
+      x.style.display = 'block';
+  } else {
+      x.style.display = 'none';
+  }
+}
+</script>
