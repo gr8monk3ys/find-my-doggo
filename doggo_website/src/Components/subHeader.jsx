@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 
-import image from "../Assets/img/subHeader.png";
+import image from "../Assets/img/Doggo logo.JPG";
 
 class SubHeader extends Component {
     render(){
@@ -8,7 +8,7 @@ class SubHeader extends Component {
             <React.Fragment>
                 <div className = "box">
                     <img className = "subHeaderImage" src = {image}/>
-                    <div className = "headerText">Hello World</div>
+                    <div className = "headerText"> Find My Doggo </div>
                 </div>
             </React.Fragment>
 
