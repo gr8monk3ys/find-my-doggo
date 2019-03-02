@@ -11,20 +11,20 @@ class WorkExperience extends Component {
             <React.Fragment>
                 <center className = 'subtitle'>
                     <Icon name = "keyboard"/><br/>
-                    Work Experience
+                    Select an Option...
                 </center>
                 <Divider/>
                 <Grid columns = "equal">
                     <Grid.Column width = {8}>
-                        <button className = "exp" onClick = {()=>expand(0)}> Hello 1</button>
+                        <button className = "exp" onClick = {()=>expand(0)}> Lost Dog</button>
                         <div className = "panel">
-                            HELLO THERE
+                            If you lost your dog(s) post your photo(s) here.
                         </div>
                     </Grid.Column>
                     <Grid.Column width = {8}>
-                        <button className = "exp" onClick = {()=>expand(1)}> Hello 2</button>
+                        <button className = "exp" onClick = {()=>expand(1)}> Discovered Dog</button>
                         <div className = "panel">
-                            HELLO THERE
+                            If you found a dog(s), post your photo(s) here.
                         </div>
                     </Grid.Column>
                 </Grid>
