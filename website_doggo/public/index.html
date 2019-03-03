@@ -24,10 +24,11 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>Find my Doggo</title>
-
   </head>
   <body>
+      <div class="a">
+        Find my Doggo
+      </div>
      <input type="file" value="upload" id="fileButton" />
       
       <script src="https://www.gstatic.com/firebasejs/5.8.5/firebase.js"></script>
@@ -48,7 +49,7 @@
         var file = e.target.files[0];
         var storageRef = firebase.storage().ref("merced/ " + file.name);
         storageRef.put(file);
-      });    
+      });
       </script> 
       <style>
         .Droppie {
@@ -58,37 +59,19 @@
       }
       </style>
       
+<<<<<<< HEAD
   
+=======
+>>>>>>> 2d1d3bc277102ca97962963287b576f05cd4f482
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
-  
-    <script type="text/javascript">
-      //script code will go here...
+    <script type="text/javascript" id="drop">
       </script>
-      <style>
-      #drop {
-        min-height: 150px;
-        width: 250px;
-        border: 1px solid black;
-        margin: 10px;
-        padding: 10px;
-      }
-      </style>
       </head>
       <body>
-        <h1 align=center>Find My Doggo</h1>
+        
         <DIV id="status">Drag the files from a folder to a selected area ...</DIV>
-        <img src="/images/wireframe/image.png">
+        
         <DIV id="drop">Drop files here.</DIV>
         <DIV id="list"></DIV>
 
