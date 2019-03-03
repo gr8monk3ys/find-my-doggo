@@ -52,13 +52,26 @@
       To create a production bundle, use `npm run build` or `yarn build`.
       
     -->
-    <div class="ui icon input">
-      <input type="text" placeholder="Search...">
-      <i class="search icon"></i>
-    </div>
-  </body>
-  <head>
-    
+  
+    <script type="text/javascript">
+      //script code will go here...
+      </script>
+      <style>
+      #drop {
+        min-height: 150px;
+        width: 250px;
+        border: 1px solid black;
+        margin: 10px;
+        padding: 10px;
+      }
+      </style>
+      </head>
+      <body>
+        <h1 align=center>Find My Doggo</h1>
+        <DIV id="status">Drag the files from a folder to a selected area ...</DIV>
+        <img src="/images/wireframe/image.png">
+        <DIV id="drop">Drop files here.</DIV>
+        <DIV id="list"></DIV>
 
 
     <title>Geolocation</title>
@@ -68,7 +81,7 @@
       /* Always set the map height explicitly to define the size of the div
        * element that contains the map. */
       #map {
-        height: 100%;
+        height: 50%;
       }
       /* Optional: Makes the sample page fill the window. */
       html, body {

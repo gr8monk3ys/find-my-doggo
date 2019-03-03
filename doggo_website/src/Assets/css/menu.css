@@ -1,10 +1,10 @@
 .ui.menu{
-    background-color: rgb(44, 87, 167) !important;
+    background-color: #FE7F30 !important;
     margin-bottom: 0px;
 }
 
 .item:hover{
-    background-color: rgb(66, 18, 155) !important;
+    background-color: black !important;
     color: azure !important;
     cursor:pointer;
 }
@@ -22,7 +22,7 @@
 .headerText{
     position: absolute;
     font-size: 30px;
-    color: white;
+    color: grey;
     top: 100px;
     left: 650px;
 
