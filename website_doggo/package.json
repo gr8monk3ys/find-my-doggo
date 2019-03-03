@@ -7,12 +7,7 @@
     "firebase": "^5.8.5",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
-<<<<<<< HEAD
     "react-scripts": "^2.1.5",
-=======
-    "react-droppie": "^1.1.4",
-    "react-scripts": "2.1.5",
->>>>>>> 1c0aaf44baa39b1cd0ceb515344533bf2b12269e
     "semantic-ui-react": "^0.85.0"
   },
   "scripts": {
