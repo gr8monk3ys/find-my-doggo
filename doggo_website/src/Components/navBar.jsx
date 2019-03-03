@@ -15,9 +15,12 @@ class NavBar extends Component{
                         <Menu.Item>
                             <Icon name = "user circle"/> Contact Us
                         </Menu.Item>
+                        <a onClick href="https://github.com/gr8monk3ys/find_my_doggo">
                         <Menu.Item>
                             <Icon name = "github"/> Github
                         </Menu.Item>
+                        </a>
+
                     </Menu.Menu>
                 </Menu>
 
