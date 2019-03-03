@@ -27,7 +27,28 @@
 
   </head>
   <body>
-     
+     <input type="file" value="upload" id="fileButton" />
+      
+      <script src="https://www.gstatic.com/firebasejs/5.8.5/firebase.js"></script>
+      <script>
+        // Initialize Firebase
+        var config = {
+        apiKey: "AIzaSyCqIPoRIE3aYgARTrmhwi5JNzSob1FoXo8",
+        authDomain: "hackmerced-2eeb3.firebaseapp.com",
+        databaseURL: "https://hackmerced-2eeb3.firebaseio.com",
+        projectId: "hackmerced-2eeb3",
+        storageBucket: "hackmerced-2eeb3.appspot.com",
+        messagingSenderId: "150471200685"
+      };
+      firebase.initializeApp(config);
+      var fileButton = document.getElementById("fileButton");
+  
+        fileButton.addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        var storageRef = firebase.storage().ref("merced/ " + file.name);
+        storageRef.put(file);
+      });    
+      </script> 
       
   
   
