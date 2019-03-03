@@ -8,6 +8,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   position: relative;
   top: -42px;
+  background: rgb(49, 45, 44);
 }
 
 code {
@@ -27,12 +28,18 @@ div.title {
   text-align: center;
   width: auto;
   position: relative;
-  top: 100px;
-  font-size: 64px;
-  font-family: 'Roboto', sans-serif;
-  color: black; 
+  top: 250px;
+  left: -250px;
+  font-size: 128px;
+  transform: rotate(-7deg);
+  font-family: 'Righteous', cursive;
+  color: white ; 
+}
 
-
+.subHeaderImage {
+  float: right;
+  size: 200px;
+  width: 25% !important
 }
 
 #reportBtn {
@@ -40,10 +47,25 @@ div.title {
   left: 300px;
   top: 500px;
   font-family: 'Open Sans', sans-serif;
+  color: white;
 }
 
 #submitBtn {
   position: relative;
-  top:500px;
-  left: 300px;
+  top: 523px;
+  left: 23px;
+}
+
+#submitBtn2 {
+  position: relative;
+  top:523px;
+  left: 323px;
+}
+
+#helpBtn {
+  position: relative;
+  left: 600px;
+  top: 500px;
+  font-family: 'Open Sans', sans-serif;
+  color: white; 
 }

@@ -17,7 +17,7 @@ class App extends Component {
     return (
       <React.Fragment>
         <NavBar/>
-        <SubHeader/>
+        <SubHeader />
         <Container>
         </Container>
       </React.Fragment>
