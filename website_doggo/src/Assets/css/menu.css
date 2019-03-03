@@ -5,13 +5,13 @@
 
 .item:hover{
     background-color: black !important;
-    color: azure !important;
+    color: black !important;
     cursor:pointer;
 }
 
 .box{
-    width: 100%;
-    height: 400px;
+    width: 50%;
+    height: 200px;
 }
 
 .subHeaderImage{
