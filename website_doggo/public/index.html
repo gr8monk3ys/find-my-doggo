@@ -30,11 +30,34 @@
      <input type="file" value="upload" id="helpBtn" />
      <button onclick="submitButton()" id="submitBtn2">Upload</button>
       
+<<<<<<< HEAD
      
   
   
      <noscript>You need to enable JavaScript to run this app.</noscript>
     
+=======
+      <script src="https://www.gstatic.com/firebasejs/5.8.5/firebase.js"></script>
+      <script>
+
+      var fileButton = document.getElementById("fileButton");
+  
+        fileButton.addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        var storageRef = firebase.storage().ref("merced/ " + file.name);
+        storageRef.put(file);
+      });
+      </script> 
+      <style>
+        .Droppie {
+        width: 150px;
+        height: 150px;
+        background-size: cover;
+      }
+      </style>
+      
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+>>>>>>> 1c0aaf44baa39b1cd0ceb515344533bf2b12269e
     <div id="root"></div>
     
     <script type="text/javascript" id="drop">

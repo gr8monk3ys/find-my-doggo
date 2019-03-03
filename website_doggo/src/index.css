@@ -66,6 +66,7 @@ div.title {
 
 #submitBtn2 {
   position: relative;
+<<<<<<< HEAD
   top:523px;
   left: 323px;
 }
@@ -76,4 +77,8 @@ div.title {
   top: 500px;
   font-family: 'Open Sans', sans-serif;
   color: white; 
+=======
+  left: 25px;
+  top: 25px;
+>>>>>>> 1c0aaf44baa39b1cd0ceb515344533bf2b12269e
 }
