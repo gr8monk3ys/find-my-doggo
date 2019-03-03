@@ -12,3 +12,28 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+#drop {
+  min-height: 150px;
+  width: 250px;
+  border: 1px solid black;
+  margin: 10px;
+  padding: 10px;
+}
+
+div.a {
+  text-align: center;
+  width: auto;
+  position: relative;
+  top: 100px;
+  font-size: 64px;
+
+
+}
+
+#fileButton {
+  position: relative;
+  left: 25px;
+  top: 
+
+}
