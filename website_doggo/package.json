@@ -3,8 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "bootstrap": "^4.3.1",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
+    "react-droppie": "^1.1.4",
     "react-scripts": "2.1.5",
     "semantic-ui-react": "^0.85.0"
   },
