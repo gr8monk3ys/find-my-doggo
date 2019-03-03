@@ -41,4 +41,4 @@ class WorkExperience extends Component {
     }
 }
 
-export default WorkExperience
+export default FoundOrLost
