@@ -218,26 +218,32 @@ declare module "tls" {
         addListener(event: string, listener: (...args: any[]) => void): this;
         addListener(event: "OCSPResponse", listener: (response: Buffer) => void): this;
         addListener(event: "secureConnect", listener: () => void): this;
+        addListener(event: "session", listener: (session: Buffer) => void): this;
 
         emit(event: string | symbol, ...args: any[]): boolean;
         emit(event: "OCSPResponse", response: Buffer): boolean;
         emit(event: "secureConnect"): boolean;
+        emit(event: "session", session: Buffer): boolean;
 
         on(event: string, listener: (...args: any[]) => void): this;
         on(event: "OCSPResponse", listener: (response: Buffer) => void): this;
         on(event: "secureConnect", listener: () => void): this;
+        on(event: "session", listener: (session: Buffer) => void): this;
 
         once(event: string, listener: (...args: any[]) => void): this;
         once(event: "OCSPResponse", listener: (response: Buffer) => void): this;
         once(event: "secureConnect", listener: () => void): this;
+        once(event: "session", listener: (session: Buffer) => void): this;
 
         prependListener(event: string, listener: (...args: any[]) => void): this;
         prependListener(event: "OCSPResponse", listener: (response: Buffer) => void): this;
         prependListener(event: "secureConnect", listener: () => void): this;
+        prependListener(event: "session", listener: (session: Buffer) => void): this;
 
         prependOnceListener(event: string, listener: (...args: any[]) => void): this;
         prependOnceListener(event: "OCSPResponse", listener: (response: Buffer) => void): this;
         prependOnceListener(event: "secureConnect", listener: () => void): this;
+        prependOnceListener(event: "session", listener: (session: Buffer) => void): this;
     }
 
     interface TlsOptions extends SecureContextOptions {
@@ -265,6 +271,7 @@ declare module "tls" {
         minDHSize?: number;
         secureContext?: SecureContext; // If not provided, the entire ConnectionOptions object will be passed to tls.createSecureContext()
         lookup?: net.LookupFunction;
+        timeout?: number;
     }
 
     class Server extends net.Server {
@@ -330,6 +337,8 @@ declare module "tls" {
         cleartext: any;
     }
 
+    type SecureVersion = 'TLSv1.2' | 'TLSv1.1' | 'TLSv1';
+
     interface SecureContextOptions {
         pfx?: string | Buffer | Array<string | Buffer | Object>;
         key?: string | Buffer | Array<Buffer | Object>;
@@ -345,6 +354,22 @@ declare module "tls" {
         secureOptions?: number; // Value is a numeric bitmask of the `SSL_OP_*` options
         secureProtocol?: string; // SSL Method, e.g. SSLv23_method
         sessionIdContext?: string;
+        /**
+         * Optionally set the maximum TLS version to allow. One
+         * of `TLSv1.2'`, `'TLSv1.1'`, or `'TLSv1'`. Cannot be specified along with the
+         * `secureProtocol` option, use one or the other.  **Default:** `'TLSv1.2'`.
+         */
+        maxVersion?: SecureVersion;
+        /**
+         * Optionally set the minimum TLS version to allow. One
+         * of `TLSv1.2'`, `'TLSv1.1'`, or `'TLSv1'`. Cannot be specified along with the
+         * `secureProtocol` option, use one or the other.  It is not recommended to use
+         * less than TLSv1.2, but it may be required for interoperability.
+         * **Default:** `'TLSv1.2'`, unless changed using CLI options. Using
+         * `--tls-v1.0` changes the default to `'TLSv1'`. Using `--tls-v1.1` changes
+         * the default to `'TLSv1.1'`.
+         */
+        minVersion?: SecureVersion;
     }
 
     interface SecureContext {
@@ -363,7 +388,7 @@ declare module "tls" {
     function connect(options: ConnectionOptions, secureConnectListener?: () => void): TLSSocket;
     function connect(port: number, host?: string, options?: ConnectionOptions, secureConnectListener?: () => void): TLSSocket;
     function connect(port: number, options?: ConnectionOptions, secureConnectListener?: () => void): TLSSocket;
-    function createSecurePair(credentials?: crypto.Credentials, isServer?: boolean, requestCert?: boolean, rejectUnauthorized?: boolean): SecurePair;
+    function createSecurePair(credentials?: SecureContext, isServer?: boolean, requestCert?: boolean, rejectUnauthorized?: boolean): SecurePair;
     function createSecureContext(details: SecureContextOptions): SecureContext;
     function getCiphers(): string[];
 

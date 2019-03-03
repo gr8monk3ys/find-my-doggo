@@ -222,7 +222,7 @@ declare module "stream" {
             uncork(): void;
         }
 
-        type TransformCallback = (error?: Error, data?: any) => void;
+        type TransformCallback = (error?: Error | null, data?: any) => void;
 
         interface TransformOptions extends DuplexOptions {
             read?(this: Transform, size: number): void;
@@ -288,6 +288,8 @@ declare module "stream" {
                 ...streams: Array<NodeJS.ReadWriteStream | NodeJS.WritableStream>,
             ): Promise<void>;
         }
+
+        interface Pipe { }
     }
 
     export = internal;

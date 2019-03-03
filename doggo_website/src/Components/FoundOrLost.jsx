@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 
-import {Icon, Divider, Grid} from "semantic-ui-react"
+import {Icon, Divider, Grid,} from "semantic-ui-react"
 
 //IMPORT JS 
 import {expand} from "../Assets/js/accordion.js";
