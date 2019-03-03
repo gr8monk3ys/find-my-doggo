@@ -1,0 +1,30 @@
+.ui.menu{
+    background-color: #FE7F30 !important;
+    margin-bottom: 0px;
+}
+
+.item:hover{
+    background-color: black !important;
+    color: azure !important;
+    cursor:pointer;
+}
+
+.box{
+    width: 100%;
+    height: 400px;
+}
+
+.subHeaderImage{
+    height: 100%;
+    width: 100%;
+}
+
+.headerText{
+    position: absolute;
+    font-size: 30px;
+    color: grey;
+    top: 100px;
+    left: 650px;
+
+}
+
