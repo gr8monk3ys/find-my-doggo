@@ -23,17 +23,7 @@ class App extends Component {
     }
   }
 
-  switchPage(pageName) {
-    this.setState({ currentPage: pageName });
-  }
-
   render() {
-
-    const PAGE_NAMES = {
-      Home: <FoundOrLost switchPage={this.switchPage.bind(this)} />,
-      LostDog: <FoundOrLost switchPage={this.switchPage.bind('LostDog')} />,
-      DiscoveredDog: <FoundOrLost switchPage={this.switchPage.bind('FoundDog')} />,
-    }
 
     return (
       
@@ -41,7 +31,6 @@ class App extends Component {
         <NavBar/>
         <subHeader/>
         <Container>
-        {PAGE_NAMES[this.state.currentPage]}
         </Container>
       </React.Fragment>
       
