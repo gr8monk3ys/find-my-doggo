@@ -7,7 +7,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   position: relative;
-  top: -42px;
+  top: -63px;
   background: rgb(49, 45, 44);
 }
 
@@ -25,6 +25,7 @@ code {
 }
 
 div.title {
+  
   text-align: center;
   width: auto;
   position: relative;
@@ -54,6 +55,13 @@ div.title {
   position: relative;
   top: 523px;
   left: 23px;
+}
+
+#helpBtnText {
+  position: relative;
+  left: 600px;
+  top: 470px;
+  color: white;
 }
 
 #submitBtn2 {
