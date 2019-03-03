@@ -6,6 +6,9 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  position: relative;
+  top: -63px;
+  background: rgb(49, 45, 44);
 }
 
 code {
@@ -21,18 +24,61 @@ code {
   padding: 10px;
 }
 
-div.a {
+div.title {
+  
   text-align: center;
   width: auto;
   position: relative;
-  top: 100px;
-  font-size: 64px;
-
-
+  top: 250px;
+  left: -250px;
+  font-size: 128px;
+  transform: rotate(-7deg);
+  font-family: 'Righteous', cursive;
+  color: white ; 
 }
 
-#fileButton {
+.subHeaderImage {
+  float: right;
+  size: 200px;
+  width: 25% !important
+}
+
+#reportBtn {
   position: relative;
+  left: 300px;
+  top: 500px;
+  font-family: 'Open Sans', sans-serif;
+  color: white;
+}
+
+#submitBtn {
+  position: relative;
+  top: 523px;
+  left: 23px;
+}
+
+#helpBtnText {
+  position: relative;
+  left: 600px;
+  top: 470px;
+  color: white;
+}
+
+#submitBtn2 {
+  position: relative;
+<<<<<<< HEAD
+  top:523px;
+  left: 323px;
+}
+
+#helpBtn {
+  position: relative;
+  left: 600px;
+  top: 500px;
+  font-family: 'Open Sans', sans-serif;
+  color: white; 
+=======
   left: 25px;
   top: 25px;
+>>>>>>> 1c0aaf44baa39b1cd0ceb515344533bf2b12269e
 }
