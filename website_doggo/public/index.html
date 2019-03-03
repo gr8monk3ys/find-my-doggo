@@ -4,130 +4,39 @@
     <meta charset="utf-8" />
     <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css"/>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto" rel="stylesheet">
     
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
     <meta name="theme-color" content="#000000" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
+    
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
   </head>
+
   <body>
-      <div class="a">
-        Find my Doggo
-      </div>
-     <input type="file" value="upload" id="fileButton" />
+     <div class="title">Find my Doggo</div>
+     
+     <input type="file" value="upload" id="reportBtn" />
+     <button onclick="submitButton()" id="submitBtn">Submit</button>
+     
+     <script src="https://www.gstatic.com/firebasejs/5.8.5/firebase.js"></script>
+     <script src="./indexJS.js"></script> 
+
+     
       
-      <script src="https://www.gstatic.com/firebasejs/5.8.5/firebase.js"></script>
-      <script>
-        // Initialize Firebase
-        var config = {
-        apiKey: "AIzaSyCqIPoRIE3aYgARTrmhwi5JNzSob1FoXo8",
-        authDomain: "hackmerced-2eeb3.firebaseapp.com",
-        databaseURL: "https://hackmerced-2eeb3.firebaseio.com",
-        projectId: "hackmerced-2eeb3",
-        storageBucket: "hackmerced-2eeb3.appspot.com",
-        messagingSenderId: "150471200685"
-      };
-      firebase.initializeApp(config);
-      var fileButton = document.getElementById("fileButton");
   
-        fileButton.addEventListener('change', function(e) {
-        var file = e.target.files[0];
-        var storageRef = firebase.storage().ref("merced/ " + file.name);
-        storageRef.put(file);
-      });
-      </script> 
-      
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+  
+  
+     <noscript>You need to enable JavaScript to run this app.</noscript>
+    
     <div id="root"></div>
+    
     <script type="text/javascript" id="drop">
-      </script>
-      </head>
-      <body>
-        
-        <DIV id="status">Drag the files from a folder to a selected area ...</DIV>
-        
-        <DIV id="drop">Drop files here.</DIV>
-        <DIV id="list"></DIV>
-
-
-    <title>Geolocation</title>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-    <meta charset="utf-8">
-    <style>
-      /* Always set the map height explicitly to define the size of the div
-       * element that contains the map. */
-      #map {
-        height: 50%;
-      }
-      /* Optional: Makes the sample page fill the window. */
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="map"></div>
-    <script>
-      // Note: This example requires that you consent to location sharing when
-      // prompted by your browser. If you see the error "The Geolocation service
-      // failed.", it means you probably did not give permission for the browser to
-      // locate you.
-      var map, infoWindow;
-      function initMap() {
-        map = new google.maps.Map(document.getElementById('map'), {
-          center: {lat: -34.397, lng: 150.644},
-          zoom: 10
-        });
-        infoWindow = new google.maps.InfoWindow;
-
-        // Try HTML5 geolocation.
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(function(position) {
-            var pos = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude
-            };
-
-            infoWindow.setPosition(pos);
-            infoWindow.setContent('Location found.');
-            infoWindow.open(map);
-            map.setCenter(pos);
-          }, function() {
-            handleLocationError(true, infoWindow, map.getCenter());
-          });
-        } else {
-          // Browser doesn't support Geolocation
-          handleLocationError(false, infoWindow, map.getCenter());
-        }
-      }
-
-      function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-        infoWindow.setPosition(pos);
-        infoWindow.setContent(browserHasGeolocation ?
-                              'Error: The Geolocation service failed.' :
-                              'Error: Your browser doesn\'t support geolocation.');
-        infoWindow.open(map);
-      }
-    </script>
-    <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBF-fhNfjCEKfHFOJ0tLrNIfCwp3idWNm4&callback=initMap">
-    </script>
+    </script> 
+    
   </body>
+
+    
 </html>

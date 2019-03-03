@@ -6,6 +6,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  position: relative;
+  top: -42px;
 }
 
 code {
@@ -21,19 +23,27 @@ code {
   padding: 10px;
 }
 
-div.a {
+div.title {
   text-align: center;
   width: auto;
   position: relative;
   top: 100px;
   font-size: 64px;
+  font-family: 'Roboto', sans-serif;
+  color: black; 
 
 
 }
 
-#fileButton {
+#reportBtn {
   position: relative;
-  left: 25px;
-  top: 
+  left: 300px;
+  top: 500px;
+  font-family: 'Open Sans', sans-serif;
+}
 
+#submitBtn {
+  position: relative;
+  top:500px;
+  left: 300px;
 }
