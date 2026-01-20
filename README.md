@@ -33,7 +33,6 @@ A community-powered platform to help reunite lost dogs with their families throu
 
 2. Install dependencies:
    ```bash
-   cd website
    npm install
    ```
 
@@ -47,7 +46,7 @@ A community-powered platform to help reunite lost dogs with their families throu
 ## Project Structure
 
 ```
-website/
+find-my-doggo/
 ├── src/
 │   ├── app/
 │   │   ├── page.tsx          # Home page
@@ -62,7 +61,9 @@ website/
 │   └── lib/
 │       ├── types.ts          # TypeScript types
 │       └── mockData.ts       # Sample dog data
-└── public/                   # Static assets
+├── public/                   # Static assets
+├── model/                    # ML model files
+└── data.zip                  # Training data
 ```
 
 ## Future Enhancements
