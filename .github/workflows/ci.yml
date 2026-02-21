@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  baseline-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        if: ${{ hashFiles('package.json') != '' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Node dependencies
+        if: ${{ hashFiles('package.json') != '' }}
+        run: |
+          if [ -f package-lock.json ]; then npm ci; \
+          elif [ -f yarn.lock ]; then yarn install --frozen-lockfile; \
+          elif [ -f pnpm-lock.yaml ]; then corepack enable && pnpm install --frozen-lockfile; \
+          else npm install; fi
+
+      - name: Run Node scripts
+        if: ${{ hashFiles('package.json') != '' }}
+        run: |
+          npm run lint --if-present
+          npm run test --if-present
+          npm run build --if-present
+
+      - name: Setup Python
+        if: ${{ hashFiles('requirements.txt', 'pyproject.toml') != '' }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        if: ${{ hashFiles('requirements.txt', 'pyproject.toml') != '' }}
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+
+      - name: Run Python tests
+        if: ${{ hashFiles('requirements.txt', 'pyproject.toml') != '' }}
+        run: |
+          if [ -d tests ] || [ -d test ]; then
+            python -m pip install pytest
+            pytest -q
+          else
+            echo "No Python tests found."
+          fi
