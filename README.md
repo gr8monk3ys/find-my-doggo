@@ -1,5 +1,9 @@
 # Find My Doggo
 
+<p align="center">
+  <img src="docs/assets/hero.png" alt="find-my-doggo preview" width="640">
+</p>
+
 A community-powered platform to help reunite lost dogs with their families through photo sharing and location mapping.
 
 ## Features
