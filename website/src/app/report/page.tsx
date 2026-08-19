@@ -29,15 +29,6 @@ const EMPTY: FormState = {
 const inputClass =
   'w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a2e] focus:ring-2 focus:ring-orange-500 focus:border-transparent';
 
-/**
- * Asserts the invariant that only a browser-minted object URL is rendered.
- * `createObjectURL` cannot return anything else, so this filters nothing in
- * practice — it states the guarantee at the point the value is used.
- */
-function objectUrl(url: string | null): string | undefined {
-  return url?.startsWith('blob:') ? url : undefined;
-}
-
 export default function ReportPage() {
   const [form, setForm] = useState<FormState>(EMPTY);
   const [photo, setPhoto] = useState<File | null>(null);
@@ -195,15 +186,12 @@ export default function ReportPage() {
               previewUrl ? 'border-orange-300' : 'border-gray-300 dark:border-gray-700'
             }`}
           >
-            {previewUrl ? (
+            {previewUrl !== null && previewUrl.startsWith('blob:') ? (
               <div className="relative inline-block">
-                {/* Blob preview of a not-yet-uploaded file; next/image cannot optimise it. */}
+                {/* A not-yet-uploaded file, previewed from the object URL created
+                    above. next/image cannot optimise a blob: source. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={objectUrl(previewUrl)}
-                  alt="Preview of the photo you selected"
-                  className="max-h-64 rounded-lg"
-                />
+                <img src={previewUrl} alt="Preview of the photo you selected" className="max-h-64 rounded-lg" />
                 <button
                   type="button"
                   onClick={clearPhoto}
