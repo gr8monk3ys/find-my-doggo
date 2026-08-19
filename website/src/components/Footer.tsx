@@ -1,5 +1,21 @@
 import Link from 'next/link';
 
+const SITE_LINKS = [
+  { href: '/dogs', label: 'Lost & found dogs' },
+  { href: '/report', label: 'Report a dog' },
+  { href: '/map', label: 'Map' },
+  { href: '/contact', label: 'Contact' },
+];
+
+const RESOURCES = [
+  { href: 'https://www.aspca.org/pet-care/general-pet-care/lost-pet', label: 'ASPCA: lost pet advice' },
+  {
+    href: 'https://www.akc.org/expert-advice/lifestyle/what-to-do-if-your-dog-is-lost/',
+    label: 'AKC: what to do if your dog is lost',
+  },
+  { href: 'https://www.petfinder.com/animal-shelters-and-rescues/search/', label: 'Find a local shelter' },
+];
+
 export default function Footer() {
   return (
     <footer className="bg-gray-900 text-white mt-auto">
@@ -7,64 +23,61 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              <span className="text-3xl">🐕</span>
+              <span className="text-3xl" aria-hidden="true">
+                🐕
+              </span>
               <span className="text-xl font-bold text-orange-500">Find My Doggo</span>
             </div>
             <p className="text-gray-400">
-              Helping reunite lost dogs with their families through community support and technology.
+              A community noticeboard for lost and found dogs. Free to use, no account needed.
             </p>
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+            <h2 className="text-lg font-semibold mb-4">Site</h2>
             <ul className="space-y-2">
-              <li>
-                <Link href="/dogs" className="text-gray-400 hover:text-orange-500 transition-colors">
-                  Lost & Found Dogs
-                </Link>
-              </li>
-              <li>
-                <Link href="/report" className="text-gray-400 hover:text-orange-500 transition-colors">
-                  Report a Dog
-                </Link>
-              </li>
-              <li>
-                <Link href="/map" className="text-gray-400 hover:text-orange-500 transition-colors">
-                  Map View
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="text-gray-400 hover:text-orange-500 transition-colors">
-                  Contact Us
-                </Link>
-              </li>
+              {SITE_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-gray-400 hover:text-orange-500 transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-4">Resources</h3>
+            <h2 className="text-lg font-semibold mb-4">Resources</h2>
             <ul className="space-y-2">
-              <li>
-                <a href="#" className="text-gray-400 hover:text-orange-500 transition-colors">
-                  Tips for Finding Lost Dogs
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-400 hover:text-orange-500 transition-colors">
-                  Pet Safety Guide
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-400 hover:text-orange-500 transition-colors">
-                  Local Shelters
-                </a>
-              </li>
+              {RESOURCES.map((resource) => (
+                <li key={resource.href}>
+                  <a
+                    href={resource.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-400 hover:text-orange-500 transition-colors"
+                  >
+                    {resource.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; {new Date().getFullYear()} Find My Doggo. All rights reserved.</p>
+          <p>
+            Find My Doggo is open source under the GPL-3.0 licence.{' '}
+            <a
+              href="https://github.com/gr8monk3ys/find-my-doggo"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-orange-500 transition-colors underline"
+            >
+              View the source on GitHub
+            </a>
+            .
+          </p>
         </div>
       </div>
     </footer>

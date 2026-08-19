@@ -1,76 +1,173 @@
 'use client';
 
-import { useState } from 'react';
+import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react';
+import { IMAGE_MIME_TYPES, validateImage } from '@/lib/validation';
+
+interface FormState {
+  status: 'lost' | 'found';
+  name: string;
+  breed: string;
+  color: string;
+  description: string;
+  address: string;
+  contactEmail: string;
+  contactPhone: string;
+}
+
+const EMPTY: FormState = {
+  status: 'lost',
+  name: '',
+  breed: '',
+  color: '',
+  description: '',
+  address: '',
+  contactEmail: '',
+  contactPhone: '',
+};
+
+/** Longest edge of the drawn preview, in CSS pixels. */
+const PREVIEW_MAX_EDGE = 256;
+
+const inputClass =
+  'w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a2e] focus:ring-2 focus:ring-orange-500 focus:border-transparent';
 
 export default function ReportPage() {
-  const [formData, setFormData] = useState({
-    status: 'lost' as 'lost' | 'found',
-    name: '',
-    breed: '',
-    color: '',
-    description: '',
-    address: '',
-    contactEmail: '',
-    contactPhone: '',
-  });
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [form, setForm] = useState<FormState>(EMPTY);
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [createdId, setCreatedId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const previewRef = useRef<HTMLCanvasElement>(null);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  /**
+   * The preview is decoded and drawn rather than pointed at with an object URL.
+   * The browser only ever renders pixels it successfully decoded as an image,
+   * there is no URL for anything to navigate to, and there is no object-URL
+   * lifetime to leak.
+   */
+  useEffect(() => {
+    const canvas = previewRef.current;
+    if (!photo || !canvas) return;
+
+    let cancelled = false;
+    createImageBitmap(photo)
+      .then((bitmap) => {
+        if (cancelled) {
+          bitmap.close();
+          return;
+        }
+        const scale = Math.min(PREVIEW_MAX_EDGE / bitmap.width, PREVIEW_MAX_EDGE / bitmap.height, 1);
+        canvas.width = Math.round(bitmap.width * scale);
+        canvas.height = Math.round(bitmap.height * scale);
+        canvas.getContext('2d')?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+        bitmap.close();
+      })
+      .catch(() => {
+        // Undecodable despite passing the type check; the file is still sent and
+        // the server validates it again.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [photo]);
+
+  const update = (key: keyof FormState) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setForm((prev) => ({ ...prev, [key]: event.target.value }));
+
+  const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] ?? null;
+    setFieldErrors((prev) => ({ ...prev, photo: '' }));
+
+    if (!file) {
+      setPhoto(null);
+      return;
+    }
+
+    // The same check the API runs, so the two cannot drift, and the visitor
+    // hears about a bad file before uploading it. The `accept` attribute only
+    // filters the file picker; it is not a guarantee about what arrives here.
+    const rejection = validateImage(file);
+    if (rejection) {
+      setFieldErrors((prev) => ({ ...prev, photo: rejection }));
+      setPhoto(null);
+      return;
+    }
+    setPhoto(file);
+  };
+
+  const clearPhoto = () => {
+    setPhoto(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const reset = () => {
+    setForm(EMPTY);
+    clearPhoto();
+    setFieldErrors({});
+    setFormError(null);
+    setCreatedId(null);
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+    setFormError(null);
+    setFieldErrors({});
+
+    const body = new FormData();
+    for (const [key, value] of Object.entries(form)) body.append(key, value);
+    if (photo) body.append('photo', photo);
+
+    try {
+      const response = await fetch('/api/dogs', { method: 'POST', body });
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        setFieldErrors(payload.fields ?? {});
+        setFormError(payload.error ?? 'Something went wrong. Please try again.');
+        return;
+      }
+      setCreatedId(payload.dog?.id ?? null);
+    } catch {
+      setFormError('We could not reach the server. Please check your connection and try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    setIsSubmitting(false);
-    setSubmitted(true);
-  };
-
-  if (submitted) {
+  if (createdId) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
+      <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="text-center p-8">
           <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold mb-4">Report Submitted!</h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Thank you for submitting your report. We&apos;ll notify you if there are any matches.
+          <h2 className="text-2xl font-bold mb-4">Report published</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
+            Your listing is live. Anyone who recognises the dog can message you through the site — your email address
+            is not shown publicly.
           </p>
-          <button
-            onClick={() => {
-              setSubmitted(false);
-              setFormData({
-                status: 'lost',
-                name: '',
-                breed: '',
-                color: '',
-                description: '',
-                address: '',
-                contactEmail: '',
-                contactPhone: '',
-              });
-              setImagePreview(null);
-            }}
-            className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-6 rounded-lg transition-colors"
-          >
-            Submit Another Report
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link
+              href={`/dogs/${createdId}`}
+              className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-6 rounded-lg transition-colors"
+            >
+              View your listing
+            </Link>
+            <button
+              type="button"
+              onClick={reset}
+              className="border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium py-2 px-6 rounded-lg transition-colors"
+            >
+              Submit another report
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -78,70 +175,78 @@ export default function ReportPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-bold mb-2">Report a Dog</h1>
+      <h1 className="text-3xl font-bold mb-2">Report a dog</h1>
       <p className="text-gray-600 dark:text-gray-400 mb-8">
-        Fill out the form below to report a lost or found dog. The more details you provide, the better chance of
-        reuniting the dog with its family.
+        The more detail you give, the better the chance of a match. Your email is used only to forward messages — it is
+        never shown on the site.
       </p>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Status Selection */}
-        <div>
-          <label className="block text-sm font-medium mb-3">Is this dog lost or found?</label>
-          <div className="flex gap-4">
-            <button
-              type="button"
-              onClick={() => setFormData({ ...formData, status: 'lost' })}
-              className={`flex-1 py-3 px-4 rounded-lg border-2 font-medium transition-colors ${
-                formData.status === 'lost'
-                  ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-600'
-                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Lost Dog
-            </button>
-            <button
-              type="button"
-              onClick={() => setFormData({ ...formData, status: 'found' })}
-              className={`flex-1 py-3 px-4 rounded-lg border-2 font-medium transition-colors ${
-                formData.status === 'found'
-                  ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-600'
-                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Found Dog
-            </button>
-          </div>
-        </div>
+      <form onSubmit={handleSubmit} noValidate className="space-y-6">
+        {formError && (
+          <p role="alert" className="rounded-lg bg-red-50 dark:bg-red-950/40 px-4 py-3 text-red-700 dark:text-red-300">
+            {formError}
+          </p>
+        )}
 
-        {/* Image Upload */}
+        <fieldset>
+          <legend className="block text-sm font-medium mb-3">Is this dog lost or found?</legend>
+          <div className="flex gap-4">
+            {(['lost', 'found'] as const).map((status) => (
+              <button
+                key={status}
+                type="button"
+                onClick={() => setForm((prev) => ({ ...prev, status }))}
+                aria-pressed={form.status === status}
+                className={`flex-1 py-3 px-4 rounded-lg border-2 font-medium capitalize transition-colors ${
+                  form.status === status
+                    ? status === 'lost'
+                      ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-600'
+                      : 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-600'
+                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {status} dog
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
         <div>
-          <label className="block text-sm font-medium mb-2">Photo of the Dog</label>
+          <label htmlFor="photo" className="block text-sm font-medium mb-2">
+            Photo of the dog (optional)
+          </label>
           <div
-            className={`border-2 border-dashed rounded-lg p-6 text-center ${
-              imagePreview ? 'border-orange-300' : 'border-gray-300 dark:border-gray-700'
+            className={`rounded-lg border-2 border-dashed p-6 text-center ${
+              photo ? 'border-orange-300' : 'border-gray-300 dark:border-gray-700'
             }`}
           >
-            {imagePreview ? (
-              <div className="relative">
-                <img src={imagePreview} alt="Preview" className="max-h-64 mx-auto rounded-lg" />
+            {photo ? (
+              <div className="relative inline-block">
+                <canvas
+                  ref={previewRef}
+                  role="img"
+                  aria-label={`Preview of ${photo.name}`}
+                  className="max-h-64 rounded-lg"
+                />
                 <button
                   type="button"
-                  onClick={() => setImagePreview(null)}
-                  className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                  onClick={clearPhoto}
+                  aria-label="Remove photo"
+                  className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
             ) : (
-              <div>
+              <>
                 <svg
                   className="w-12 h-12 text-gray-400 mx-auto mb-3"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -150,147 +255,145 @@ export default function ReportPage() {
                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                   />
                 </svg>
-                <p className="text-gray-600 dark:text-gray-400 mb-2">Click or drag to upload a photo</p>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
-              </div>
+                <p className="text-gray-600 dark:text-gray-400 mb-3">JPEG, PNG, or WebP, up to 5MB.</p>
+              </>
             )}
-          </div>
-        </div>
-
-        {/* Dog Details */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium mb-2">
-              Dog&apos;s Name (if known)
-            </label>
             <input
-              type="text"
-              id="name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Unknown"
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a2e] focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              ref={fileInputRef}
+              id="photo"
+              name="photo"
+              type="file"
+              accept={IMAGE_MIME_TYPES.join(',')}
+              onChange={handlePhotoChange}
+              className="mx-auto block text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-orange-500 file:px-4 file:py-2 file:text-white hover:file:bg-orange-600"
             />
           </div>
-          <div>
-            <label htmlFor="breed" className="block text-sm font-medium mb-2">
-              Breed
-            </label>
+          {fieldErrors.photo && (
+            <p role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">
+              {fieldErrors.photo}
+            </p>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Field id="name" label="Dog's name (if known)" error={fieldErrors.name}>
+            <input id="name" type="text" value={form.name} onChange={update('name')} placeholder="Unknown" className={inputClass} />
+          </Field>
+          <Field id="breed" label="Breed" error={fieldErrors.breed}>
             <input
-              type="text"
               id="breed"
-              value={formData.breed}
-              onChange={(e) => setFormData({ ...formData, breed: e.target.value })}
-              placeholder="e.g., Golden Retriever, Mixed"
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a2e] focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              type="text"
+              value={form.breed}
+              onChange={update('breed')}
+              placeholder="e.g. Golden Retriever, mixed"
+              className={inputClass}
               required
             />
-          </div>
+          </Field>
         </div>
 
-        <div>
-          <label htmlFor="color" className="block text-sm font-medium mb-2">
-            Color / Markings
-          </label>
+        <Field id="color" label="Colour and markings" error={fieldErrors.color}>
           <input
-            type="text"
             id="color"
-            value={formData.color}
-            onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-            placeholder="e.g., Golden, Black with white chest"
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a2e] focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            type="text"
+            value={form.color}
+            onChange={update('color')}
+            placeholder="e.g. Golden, black with a white chest"
+            className={inputClass}
             required
           />
-        </div>
+        </Field>
 
-        <div>
-          <label htmlFor="description" className="block text-sm font-medium mb-2">
-            Description
-          </label>
+        <Field id="description" label="Description" error={fieldErrors.description}>
           <textarea
             id="description"
             rows={4}
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            placeholder="Include any distinctive features, collar details, behavior, etc."
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a2e] focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            value={form.description}
+            onChange={update('description')}
+            placeholder="Distinctive features, collar details, behaviour, when they went missing…"
+            className={inputClass}
             required
           />
-        </div>
+        </Field>
 
-        <div>
-          <label htmlFor="address" className="block text-sm font-medium mb-2">
-            {formData.status === 'lost' ? 'Last Seen Location' : 'Found Location'}
-          </label>
+        <Field
+          id="address"
+          label={form.status === 'lost' ? 'Last seen location' : 'Found location'}
+          error={fieldErrors.address}
+          hint="A town, park, or street is enough — we place it on the map for you."
+        >
           <input
-            type="text"
             id="address"
-            value={formData.address}
-            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-            placeholder="e.g., Central Park, New York or 123 Main St"
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a2e] focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            type="text"
+            value={form.address}
+            onChange={update('address')}
+            placeholder="e.g. Central Park, New York"
+            className={inputClass}
             required
           />
-        </div>
+        </Field>
 
-        {/* Contact Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-2">
-              Contact Email
-            </label>
+          <Field id="contactEmail" label="Contact email" error={fieldErrors.contactEmail}>
             <input
+              id="contactEmail"
               type="email"
-              id="email"
-              value={formData.contactEmail}
-              onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
-              placeholder="your@email.com"
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a2e] focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              value={form.contactEmail}
+              onChange={update('contactEmail')}
+              placeholder="you@example.com"
+              className={inputClass}
               required
             />
-          </div>
-          <div>
-            <label htmlFor="phone" className="block text-sm font-medium mb-2">
-              Phone Number (optional)
-            </label>
+          </Field>
+          <Field id="contactPhone" label="Phone number (optional)" error={fieldErrors.contactPhone}>
             <input
+              id="contactPhone"
               type="tel"
-              id="phone"
-              value={formData.contactPhone}
-              onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
+              value={form.contactPhone}
+              onChange={update('contactPhone')}
               placeholder="555-123-4567"
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a2e] focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className={inputClass}
             />
-          </div>
+          </Field>
         </div>
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center"
+          className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-lg transition-colors"
         >
-          {isSubmitting ? (
-            <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-              Submitting...
-            </>
-          ) : (
-            'Submit Report'
-          )}
+          {isSubmitting ? 'Submitting…' : 'Submit report'}
         </button>
       </form>
+    </div>
+  );
+}
+
+function Field({
+  id,
+  label,
+  error,
+  hint,
+  children,
+}: {
+  id: string;
+  label: string;
+  error?: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label htmlFor={id} className="block text-sm font-medium mb-2">
+        {label}
+      </label>
+      {children}
+      {hint && !error && <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{hint}</p>}
+      {error && (
+        <p role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

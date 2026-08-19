@@ -1,36 +1,30 @@
+export type DogStatus = 'lost' | 'found' | 'reunited';
+
+/** A dog as returned by the public API. Contact details are deliberately absent. */
 export interface Dog {
   id: string;
   name: string;
   breed: string;
   color: string;
   description: string;
-  status: 'lost' | 'found' | 'reunited';
-  imageUrl: string;
+  status: DogStatus;
+  imageUrl: string | null;
   location: {
     address: string;
-    lat: number;
-    lng: number;
+    lat: number | null;
+    lng: number | null;
   };
-  contactEmail: string;
-  contactPhone?: string;
   dateReported: string;
 }
 
-export interface ReportFormData {
-  name: string;
-  breed: string;
-  color: string;
-  description: string;
-  status: 'lost' | 'found';
-  address: string;
+/** A dog including the reporter's contact details. Server-side only. */
+export interface DogWithContact extends Dog {
   contactEmail: string;
-  contactPhone?: string;
-  image?: File;
+  contactPhone: string | null;
 }
 
-export interface ContactFormData {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
+export interface DogListFilters {
+  status?: DogStatus;
+  query?: string;
+  limit?: number;
 }
