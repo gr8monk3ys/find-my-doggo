@@ -6,9 +6,9 @@ import { useState } from 'react';
 
 const navLinks = [
   { href: '/', label: 'Home' },
-  { href: '/dogs', label: 'Lost & Found' },
+  { href: '/dogs', label: 'Lost & found' },
   { href: '/map', label: 'Map' },
-  { href: '/report', label: 'Report a Dog' },
+  { href: '/report', label: 'Report a dog' },
   { href: '/contact', label: 'Contact' },
 ];
 
@@ -22,7 +22,9 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <span className="text-3xl">🐕</span>
+              <span className="text-3xl" aria-hidden="true">
+                🐕
+              </span>
               <span className="text-xl font-bold text-orange-500">Find My Doggo</span>
             </Link>
           </div>
@@ -50,8 +52,10 @@ export default function Navbar() {
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
               aria-label="Toggle menu"
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-menu"
             >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 {mobileMenuOpen ? (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 ) : (
@@ -64,7 +68,7 @@ export default function Navbar() {
 
         {/* Mobile navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden pb-4">
+          <div id="mobile-menu" className="md:hidden pb-4">
             {navLinks.map((link) => (
               <Link
                 key={link.href}

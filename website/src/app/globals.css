@@ -31,6 +31,12 @@
   }
 }
 
+html {
+  /* The navigation is sticky, so anchor targets (including the skip link) must
+     stop short of the top edge or they land underneath it. */
+  scroll-padding-top: 5rem;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -68,5 +74,34 @@ body {
   .status-reunited {
     background-color: #172554;
     border-color: #1e40af;
+  }
+}
+
+/* Leaflet markers are drawn in CSS so Leaflet's bundled PNG icons, which it
+   resolves by relative URL, never have to be located by the bundler. */
+.dog-pin__dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9999px;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 35%);
+  font-size: 18px;
+  line-height: 1;
+  /* Purely decorative: Leaflet's marker element owns the click. */
+  pointer-events: none;
+}
+
+/* Leaflet renders its own controls and popups; keep them readable in dark mode. */
+.leaflet-container {
+  background: #dfe3e6;
+  font: inherit;
+}
+
+@media (prefers-color-scheme: dark) {
+  .leaflet-container {
+    background: #1a1a2e;
   }
 }
