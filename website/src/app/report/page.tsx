@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { IMAGE_MAX_BYTES, IMAGE_MIME_TYPES } from '@/lib/validation';
+import { IMAGE_MIME_TYPES, validateImage } from '@/lib/validation';
 
 interface FormState {
   status: 'lost' | 'found';
@@ -26,28 +26,53 @@ const EMPTY: FormState = {
   contactPhone: '',
 };
 
+/** Longest edge of the drawn preview, in CSS pixels. */
+const PREVIEW_MAX_EDGE = 256;
+
 const inputClass =
   'w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a2e] focus:ring-2 focus:ring-orange-500 focus:border-transparent';
 
 export default function ReportPage() {
   const [form, setForm] = useState<FormState>(EMPTY);
   const [photo, setPhoto] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdId, setCreatedId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const previewRef = useRef<HTMLCanvasElement>(null);
 
-  // Object URLs are revoked on replacement so a long session does not leak them.
+  /**
+   * The preview is decoded and drawn rather than pointed at with an object URL.
+   * The browser only ever renders pixels it successfully decoded as an image,
+   * there is no URL for anything to navigate to, and there is no object-URL
+   * lifetime to leak.
+   */
   useEffect(() => {
-    if (!photo) {
-      setPreviewUrl(null);
-      return;
-    }
-    const url = URL.createObjectURL(photo);
-    setPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
+    const canvas = previewRef.current;
+    if (!photo || !canvas) return;
+
+    let cancelled = false;
+    createImageBitmap(photo)
+      .then((bitmap) => {
+        if (cancelled) {
+          bitmap.close();
+          return;
+        }
+        const scale = Math.min(PREVIEW_MAX_EDGE / bitmap.width, PREVIEW_MAX_EDGE / bitmap.height, 1);
+        canvas.width = Math.round(bitmap.width * scale);
+        canvas.height = Math.round(bitmap.height * scale);
+        canvas.getContext('2d')?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+        bitmap.close();
+      })
+      .catch(() => {
+        // Undecodable despite passing the type check; the file is still sent and
+        // the server validates it again.
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [photo]);
 
   const update = (key: keyof FormState) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -57,8 +82,17 @@ export default function ReportPage() {
     const file = event.target.files?.[0] ?? null;
     setFieldErrors((prev) => ({ ...prev, photo: '' }));
 
-    if (file && file.size > IMAGE_MAX_BYTES) {
-      setFieldErrors((prev) => ({ ...prev, photo: 'Photo must be 5MB or smaller.' }));
+    if (!file) {
+      setPhoto(null);
+      return;
+    }
+
+    // The same check the API runs, so the two cannot drift, and the visitor
+    // hears about a bad file before uploading it. The `accept` attribute only
+    // filters the file picker; it is not a guarantee about what arrives here.
+    const rejection = validateImage(file);
+    if (rejection) {
+      setFieldErrors((prev) => ({ ...prev, photo: rejection }));
       setPhoto(null);
       return;
     }
@@ -183,15 +217,17 @@ export default function ReportPage() {
           </label>
           <div
             className={`rounded-lg border-2 border-dashed p-6 text-center ${
-              previewUrl ? 'border-orange-300' : 'border-gray-300 dark:border-gray-700'
+              photo ? 'border-orange-300' : 'border-gray-300 dark:border-gray-700'
             }`}
           >
-            {previewUrl !== null && previewUrl.startsWith('blob:') ? (
+            {photo ? (
               <div className="relative inline-block">
-                {/* A not-yet-uploaded file, previewed from the object URL created
-                    above. next/image cannot optimise a blob: source. */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={previewUrl} alt="Preview of the photo you selected" className="max-h-64 rounded-lg" />
+                <canvas
+                  ref={previewRef}
+                  role="img"
+                  aria-label={`Preview of ${photo.name}`}
+                  className="max-h-64 rounded-lg"
+                />
                 <button
                   type="button"
                   onClick={clearPhoto}

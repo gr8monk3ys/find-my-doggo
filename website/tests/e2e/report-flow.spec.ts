@@ -35,7 +35,7 @@ test('a reported dog is persisted, viewable, and searchable', async ({ page }) =
     mimeType: 'image/png',
     buffer: TINY_PNG,
   });
-  await expect(page.getByAltText('Preview of the photo you selected')).toBeVisible();
+  await expect(page.getByRole('img', { name: 'Preview of collie.png' })).toBeVisible();
   await page.getByRole('button', { name: 'Submit report' }).click();
 
   await expect(page.getByRole('heading', { name: 'Report published' })).toBeVisible();
