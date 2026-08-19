@@ -29,6 +29,17 @@ const EMPTY: FormState = {
 const inputClass =
   'w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a2e] focus:ring-2 focus:ring-orange-500 focus:border-transparent';
 
+/**
+ * The preview URL is derived from a file the visitor picked, so it is only ever
+ * rendered once confirmed to be a browser-minted object URL. `createObjectURL`
+ * cannot return anything else, which makes this an assertion rather than a
+ * filter — but it keeps a DOM-derived value from reaching an image source
+ * unchecked, and states the invariant where the value is used.
+ */
+function objectUrl(url: string | null): string | undefined {
+  return url?.startsWith('blob:') ? url : undefined;
+}
+
 export default function ReportPage() {
   const [form, setForm] = useState<FormState>(EMPTY);
   const [photo, setPhoto] = useState<File | null>(null);
@@ -190,7 +201,11 @@ export default function ReportPage() {
               <div className="relative inline-block">
                 {/* Blob preview of a not-yet-uploaded file; next/image cannot optimise it. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={previewUrl} alt="Preview of the photo you selected" className="max-h-64 rounded-lg" />
+                <img
+                  src={objectUrl(previewUrl)}
+                  alt="Preview of the photo you selected"
+                  className="max-h-64 rounded-lg"
+                />
                 <button
                   type="button"
                   onClick={clearPhoto}

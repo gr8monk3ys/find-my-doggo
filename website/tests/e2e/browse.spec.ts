@@ -1,5 +1,8 @@
 import { expect, test } from '@playwright/test';
 
+/** Leaflet fetches tiles from the {s} subdomains of this host. */
+const TILE_HOST = 'tile.openstreetmap.org';
+
 test('the primary navigation reaches every page', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Help reunite lost dogs');
@@ -49,7 +52,13 @@ test.describe('map', () => {
     // this independent of whether the OSM CDN is reachable from CI.
     const tileRequests: string[] = [];
     page.on('request', (request) => {
-      if (request.url().includes('tile.openstreetmap.org')) tileRequests.push(request.url());
+      // Compare the parsed hostname rather than searching the whole URL: a
+      // substring check would also match an unrelated host carrying the name
+      // in its path or query.
+      const { hostname } = new URL(request.url());
+      if (hostname === TILE_HOST || hostname.endsWith(`.${TILE_HOST}`)) {
+        tileRequests.push(request.url());
+      }
     });
 
     await page.goto('/map');
