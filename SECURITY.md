@@ -24,11 +24,14 @@ Please include the following information in your report:
 
 ## Security Measures
 
-This project implements the following security measures:
-- Regular dependency updates via Dependabot
-- Code scanning for vulnerabilities
-- Secret scanning enabled
-- Protected branches with required reviews
+- Dependencies are updated weekly via Dependabot.
+- Every pull request runs lint, typecheck, unit tests, a production build, and an
+  end-to-end browser suite.
+- Reporter contact details are never included in any public page or API response.
+- Report submission and messaging are rate limited per client, and all input is
+  validated server-side.
+- Security headers, including a Content-Security-Policy, are set in
+  `website/next.config.ts`.
 
 ## Disclosure Policy
 

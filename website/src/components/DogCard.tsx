@@ -1,49 +1,42 @@
-import { Dog } from '@/lib/types';
 import Image from 'next/image';
 import Link from 'next/link';
+import StatusBadge from '@/components/StatusBadge';
+import type { Dog } from '@/lib/types';
+import { formatReportedDate } from '@/lib/format';
 
-interface DogCardProps {
-  dog: Dog;
-}
-
-export default function DogCard({ dog }: DogCardProps) {
-  const statusStyles = {
-    lost: 'status-lost',
-    found: 'status-found',
-    reunited: 'status-reunited',
-  };
-
-  const statusLabels = {
-    lost: 'Lost',
-    found: 'Found',
-    reunited: 'Reunited',
-  };
-
+export default function DogCard({ dog }: { dog: Dog }) {
   return (
-    <div className="bg-white dark:bg-[#1a1a2e] rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-      <div className="relative h-48 w-full">
-        <Image
-          src={dog.imageUrl}
-          alt={`${dog.name} - ${dog.breed}`}
-          fill
-          className="object-cover"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
-        <span
-          className={`absolute top-3 right-3 px-3 py-1 rounded-full text-sm font-medium ${statusStyles[dog.status]}`}
-        >
-          {statusLabels[dog.status]}
-        </span>
+    <Link
+      href={`/dogs/${dog.id}`}
+      className="group block bg-white dark:bg-[#1a1a2e] rounded-xl shadow-lg overflow-hidden transition-shadow duration-300 hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+    >
+      <div className="relative h-48 w-full bg-gray-100 dark:bg-gray-800">
+        {dog.imageUrl ? (
+          <Image
+            src={dog.imageUrl}
+            alt={`${dog.name}, a ${dog.color} ${dog.breed}`}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center text-5xl" aria-hidden="true">
+            🐕
+          </div>
+        )}
+        <StatusBadge status={dog.status} className="absolute top-3 right-3" />
       </div>
       <div className="p-5">
-        <div className="flex justify-between items-start mb-2">
+        <div className="flex justify-between items-start gap-3 mb-2">
           <h3 className="text-xl font-bold text-gray-900 dark:text-white">{dog.name}</h3>
-          <span className="text-sm text-gray-500 dark:text-gray-400">{dog.dateReported}</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400 shrink-0">
+            {formatReportedDate(dog.dateReported)}
+          </span>
         </div>
         <p className="text-orange-500 font-medium mb-2">{dog.breed}</p>
         <p className="text-gray-600 dark:text-gray-300 text-sm mb-3 line-clamp-2">{dog.description}</p>
-        <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
-          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <p className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+          <svg className="w-4 h-4 mr-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -52,15 +45,12 @@ export default function DogCard({ dog }: DogCardProps) {
             />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
-          {dog.location.address}
-        </div>
-        <Link
-          href={`mailto:${dog.contactEmail}`}
-          className="block w-full text-center bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-        >
-          Contact
-        </Link>
+          <span className="truncate">{dog.location.address}</span>
+        </p>
+        <span className="mt-4 inline-block font-medium text-orange-500 group-hover:text-orange-600">
+          View details →
+        </span>
       </div>
-    </div>
+    </Link>
   );
 }
