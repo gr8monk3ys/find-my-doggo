@@ -6,27 +6,29 @@ import L from 'leaflet';
 import { useEffect, useMemo } from 'react';
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 import Link from 'next/link';
-import type { Dog } from '@/lib/types';
+import type { Dog, DogStatus } from '@/lib/types';
 
 /** Dogs without coordinates cannot be pinned; the page lists them separately. */
 type PinnedDog = Dog & { location: { address: string; lat: number; lng: number } };
 
-const MARKER_COLORS: Record<string, string> = {
-  lost: '#ef4444',
-  found: '#22c55e',
-  reunited: '#3b82f6',
+/**
+ * CSS-drawn markers rather than Leaflet's default PNG: Leaflet resolves its
+ * bundled icon images by relative URL, which breaks under bundlers.
+ *
+ * `divIcon` takes a raw HTML string, so nothing dynamic is interpolated into
+ * it — the three variants are constants and the colour lives in a stylesheet
+ * class. Built once at module load rather than per marker per render.
+ */
+const PIN_ICONS: Record<DogStatus, L.DivIcon> = {
+  lost: buildPin('dog-pin__dot--lost'),
+  found: buildPin('dog-pin__dot--found'),
+  reunited: buildPin('dog-pin__dot--reunited'),
 };
 
-/**
- * A CSS-drawn marker rather than Leaflet's default PNG. Leaflet resolves its
- * bundled icon images by relative URL, which breaks under bundlers; drawing the
- * pin ourselves sidesteps that and keeps the status colour in one place.
- */
-function pinIcon(status: string): L.DivIcon {
-  const color = MARKER_COLORS[status] ?? MARKER_COLORS.lost;
+function buildPin(modifier: 'dog-pin__dot--lost' | 'dog-pin__dot--found' | 'dog-pin__dot--reunited'): L.DivIcon {
   return L.divIcon({
     className: 'dog-pin',
-    html: `<span style="background:${color}" class="dog-pin__dot">🐕</span>`,
+    html: `<span class="dog-pin__dot ${modifier}">🐕</span>`,
     iconSize: [34, 34],
     iconAnchor: [17, 34],
     popupAnchor: [0, -32],
@@ -67,7 +69,7 @@ export default function DogMapCanvas({ dogs }: { dogs: Dog[] }) {
       />
       <FitBounds dogs={pinned} />
       {pinned.map((dog) => (
-        <Marker key={dog.id} position={[dog.location.lat, dog.location.lng]} icon={pinIcon(dog.status)}>
+        <Marker key={dog.id} position={[dog.location.lat, dog.location.lng]} icon={PIN_ICONS[dog.status]}>
           <Popup>
             <strong className="block text-base">{dog.name}</strong>
             <span className="block text-orange-600">{dog.breed}</span>

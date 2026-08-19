@@ -30,11 +30,9 @@ const inputClass =
   'w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a2e] focus:ring-2 focus:ring-orange-500 focus:border-transparent';
 
 /**
- * The preview URL is derived from a file the visitor picked, so it is only ever
- * rendered once confirmed to be a browser-minted object URL. `createObjectURL`
- * cannot return anything else, which makes this an assertion rather than a
- * filter — but it keeps a DOM-derived value from reaching an image source
- * unchecked, and states the invariant where the value is used.
+ * Asserts the invariant that only a browser-minted object URL is rendered.
+ * `createObjectURL` cannot return anything else, so this filters nothing in
+ * practice — it states the guarantee at the point the value is used.
  */
 function objectUrl(url: string | null): string | undefined {
   return url?.startsWith('blob:') ? url : undefined;

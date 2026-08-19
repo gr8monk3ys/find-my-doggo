@@ -94,6 +94,18 @@ body {
   pointer-events: none;
 }
 
+.dog-pin__dot--lost {
+  background: #ef4444;
+}
+
+.dog-pin__dot--found {
+  background: #22c55e;
+}
+
+.dog-pin__dot--reunited {
+  background: #3b82f6;
+}
+
 /* Leaflet renders its own controls and popups; keep them readable in dark mode. */
 .leaflet-container {
   background: #dfe3e6;
