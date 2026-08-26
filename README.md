@@ -1,5 +1,9 @@
 # Find My Doggo
 
+<p align="center">
+  <img src="docs/screenshot.png" alt="The Lost &amp; found listings page: a search box, status filters, and cards for each reported dog with photo, breed, description and location" width="90%">
+</p>
+
 A community noticeboard for lost and found dogs. Anyone can post a dog with a photo
 and a location, browse or search the listings, see them on a map, and message the
 person who posted — without that person's email address ever being published.
@@ -12,10 +16,11 @@ The web app is functional end to end: reports are validated and persisted, photo
 are uploaded, addresses are geocoded, and messages are delivered. See
 [Known limitations](#known-limitations) for what it does *not* do yet.
 
-The `model/` directory holds the original 2019 HackMerced breed-recognition Cloud
-Function. It is **not wired into the web app** and does not currently run — it
-targets Google Cloud AutoML Vision, which has been retired. Treat it as an
-archive of the original hackathon project, not as working code.
+## History
+
+This started as a 2019 HackMerced project that classified dog photos with Google
+AutoML image recognition; that path was retired when the app was rebuilt as a
+noticeboard, and the training images and Cloud Function are no longer in the tree.
 
 ## Quick start
 
@@ -73,8 +78,6 @@ website/
 └── tests/
     ├── unit/             # Vitest
     └── e2e/              # Playwright
-model/                    # archived 2019 breed-recognition function (not wired up)
-data.zip                  # Stanford Dogs images used to train that model
 ```
 
 ## Commands

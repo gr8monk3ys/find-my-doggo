@@ -79,7 +79,7 @@ export async function listDogs(filters: DogListFilters = {}): Promise<Dog[]> {
   const limit = Math.min(Math.max(filters.limit ?? 100, 1), 200);
   const sql = `SELECT ${SELECT_COLUMNS} FROM dogs
                ${where.length ? `WHERE ${where.join(' AND ')}` : ''}
-               ORDER BY created_at DESC
+               ORDER BY created_at DESC, rowid DESC
                LIMIT ?`;
 
   const result = await getClient().execute({ sql, args: [...args, limit] as never });
