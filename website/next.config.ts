@@ -37,6 +37,8 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: '*.public.blob.vercel-storage.com', pathname: '/**' },
     ],
   },
+  // Next 16 otherwise writes AGENTS.md/CLAUDE.md into website/ on every dev start.
+  agentRules: false,
   // Don't advertise the framework version to anyone scanning for known CVEs.
   poweredByHeader: false,
   async headers() {

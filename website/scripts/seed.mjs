@@ -43,7 +43,7 @@ const SAMPLE_DOGS = [
     color: 'Chocolate',
     description: 'Sweet chocolate lab, spayed, microchipped. Last seen chasing a squirrel.',
     status: 'lost',
-    image_url: 'https://images.unsplash.com/photo-1579213838058-8a73d0b5d5aa?w=800&h=800&fit=crop',
+    image_url: 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=800&h=800&fit=crop',
     address: 'Riverside Park, Chicago',
     lat: 41.878113,
     lng: -87.629799,
