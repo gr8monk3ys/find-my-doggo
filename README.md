@@ -1,26 +1,20 @@
 # Find My Doggo
 
+A lost-and-found dog noticeboard: anyone can post a dog with a photo and location,
+browse or search the listings, see them on a map, and message the person who
+posted. No account, no login.
+
+The design decision that matters is that the reporter's email address, the one
+piece of personal data the app holds, never leaves the server. Every read path
+goes through `toPublicDog` in `website/src/lib/dogs.ts`, which strips the contact
+fields before a record can reach a page, an API response, or the sitemap; enquiries
+go through `POST /api/messages`, which resolves the address server-side. A unit
+test asserts this directly. Rebuilt as a Next.js app from a 2019 HackMerced
+dog-photo classifier, none of which survives in the tree.
+
 <p align="center">
   <img src="docs/screenshot.png" alt="The Lost &amp; found listings page: a search box, status filters, and cards for each reported dog with photo, breed, description and location" width="90%">
 </p>
-
-A community noticeboard for lost and found dogs. Anyone can post a dog with a photo
-and a location, browse or search the listings, see them on a map, and message the
-person who posted — without that person's email address ever being published.
-
-No account, no login, free to use.
-
-## Status
-
-The web app is functional end to end: reports are validated and persisted, photos
-are uploaded, addresses are geocoded, and messages are delivered. See
-[Known limitations](#known-limitations) for what it does *not* do yet.
-
-## History
-
-This started as a 2019 HackMerced project that classified dog photos with Google
-AutoML image recognition; that path was retired when the app was rebuilt as a
-noticeboard, and the training images and Cloud Function are no longer in the tree.
 
 ## Quick start
 
@@ -53,13 +47,6 @@ present, so the same code runs in both places. Copy `website/.env.example` to
 
 `GET /api/health` reports whether the database is reachable and which optional
 integrations are actually wired up.
-
-## Privacy
-
-The email address a reporter gives is used only to forward messages to them. It is
-never included in a page, an API response, or a sitemap — enquiries go through
-`POST /api/messages`, which resolves the address server-side. A test asserts this
-directly, because it is the one piece of personal data the app holds.
 
 ## Project layout
 
