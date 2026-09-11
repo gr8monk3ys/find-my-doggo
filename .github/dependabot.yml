@@ -1,18 +1,15 @@
+# Dependabot retune 2026-09-10: version-update PRs are OFF (open-pull-requests-limit: 0).
+# Dependabot SECURITY updates still run; they are a repo setting, not this file.
+# To re-enable version bumps, raise the limit.
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/website"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
-    groups:
-      development-dependencies:
-        dependency-type: "development"
-      production-dependencies:
-        dependency-type: "production"
-
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
+- package-ecosystem: npm
+  directory: /website
+  schedule:
+    interval: monthly
+  open-pull-requests-limit: 0
+- package-ecosystem: github-actions
+  directory: /
+  schedule:
+    interval: monthly
+  open-pull-requests-limit: 0
