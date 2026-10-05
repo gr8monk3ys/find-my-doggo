@@ -17,7 +17,7 @@
     "@libsql/client": "^0.17.4",
     "@vercel/blob": "^2.8.0",
     "leaflet": "^1.9.4",
-    "next": "^16.3.4",
+    "next": "^16.3.6",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-leaflet": "^5.0.0",
