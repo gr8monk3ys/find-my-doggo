@@ -70,14 +70,21 @@ test.describe('map', () => {
     await expect(page.locator('.leaflet-tile').first()).toBeAttached({ timeout: 15_000 });
     expect(tileRequests.length).toBeGreaterThan(0);
 
-    // Pins are placed from stored lat/lng, so one marker per dog on the map
-    // proves the coordinates survived the round trip through the database.
-    const markers = page.locator('.leaflet-marker-icon');
+    // Pins are placed from stored lat/lng, so every dog accounted for on the
+    // map proves the coordinates survived the round trip through the
+    // database. Dogs whose pins land within CLUSTER_RADIUS_PX of each other
+    // collapse into a single cluster marker (cluster.ts), so this sums each
+    // standalone pin as 1 plus each cluster's own badge count rather than
+    // asserting `.leaflet-marker-icon` 1:1 against the dog count.
     const heading = await page.getByRole('heading', { name: /dogs? on the map/ }).textContent();
     const expectedPins = Number(heading?.match(/^\d+/)?.[0] ?? 0);
     expect(expectedPins).toBeGreaterThan(0);
-    await expect(markers).toHaveCount(expectedPins);
-
+    await expect(async () => {
+      const standaloneCount = await page.locator('.dog-pin.leaflet-marker-icon').count();
+      const clusterCounts = await page.locator('.dog-pin-cluster__dot').allTextContents();
+      const clusteredTotal = clusterCounts.reduce((sum, text) => sum + Number(text), 0);
+      expect(standaloneCount + clusteredTotal).toBe(expectedPins);
+    }).toPass({ timeout: 5_000 });
   });
 
   test('a pin opens a popup that links through to the listing', async ({ page }) => {
