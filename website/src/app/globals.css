@@ -573,31 +573,6 @@
 }
 
 /* ============================================================
- * LEGACY STATUS PILLS, FLATTENED
- * StatusBadge still paints these three classes until the pages PR replaces
- * it with a mono wall label in the signal token. They paint the tokens now
- * and go when their last use does; scripts/check-design-system.mjs ratchets
- * the `status-pill` count so it can only fall.
- * ============================================================ */
-.status-lost {
-  color: hsl(var(--destructive));
-  background-color: hsl(var(--destructive-muted));
-  border: 1px solid hsl(var(--destructive) / 0.3);
-}
-
-.status-found {
-  color: hsl(var(--success));
-  background-color: hsl(var(--success-muted));
-  border: 1px solid hsl(var(--success) / 0.3);
-}
-
-.status-reunited {
-  color: hsl(var(--info));
-  background-color: hsl(var(--info-muted));
-  border: 1px solid hsl(var(--info) / 0.3);
-}
-
-/* ============================================================
  * THE MAP — Leaflet on paper
  * Tiles are muted so the page's one ink stays the ink; at night the tiles
  * are inverted and dimmed. Pins and clusters are drawn in CSS (Leaflet's
@@ -631,10 +606,6 @@
   border-radius: 9999px;
   border: 2px solid hsl(var(--primary));
   background: hsl(var(--primary));
-  /* The divIcon markup still carries a decorative glyph until the pages PR
-   * drops it; the disc is the whole mark. */
-  font-size: 0;
-  color: transparent;
   /* Purely decorative: Leaflet's marker element owns the click. */
   pointer-events: none;
 }
