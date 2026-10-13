@@ -1,6 +1,6 @@
 {
   "name": "find-my-doggo",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "packageManager": "npm@10.9.9",
   "engines": {
