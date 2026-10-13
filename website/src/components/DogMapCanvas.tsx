@@ -3,13 +3,26 @@
 import 'leaflet/dist/leaflet.css';
 
 import L from 'leaflet';
-import { useEffect, useMemo } from 'react';
-import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
+import { useEffect, useMemo, useState } from 'react';
+import { MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import Link from 'next/link';
+import { clusterPoints } from '@/lib/cluster';
 import type { Dog, DogStatus } from '@/lib/types';
 
 /** Dogs without coordinates cannot be pinned; the page lists them separately. */
 type PinnedDog = Dog & { location: { address: string; lat: number; lng: number } };
+
+/** Pins within this many screen pixels of each other collapse into a cluster. */
+const CLUSTER_RADIUS_PX = 44;
+
+function buildClusterIcon(count: number): L.DivIcon {
+  return L.divIcon({
+    className: 'dog-pin-cluster',
+    html: `<span class="dog-pin-cluster__dot">${count}</span>`,
+    iconSize: [38, 38],
+    iconAnchor: [19, 19],
+  });
+}
 
 /**
  * CSS-drawn markers rather than Leaflet's default PNG: Leaflet resolves its
@@ -48,6 +61,71 @@ function FitBounds({ dogs }: { dogs: PinnedDog[] }) {
   return null;
 }
 
+type PinPoint = { id: string; x: number; y: number; dog: PinnedDog };
+
+/**
+ * Projects pins to screen space and collapses ones that would overlap into a
+ * single clickable cluster (README "Known limitations": "Overlapping map pins
+ * ... marker clustering would fix this"). Re-clusters on pan/zoom, since two
+ * pins that overlap at zoom 4 may be clickable apart at zoom 13.
+ */
+function ClusteredMarkers({ dogs }: { dogs: PinnedDog[] }) {
+  const map = useMap();
+  const [tick, setTick] = useState(0);
+
+  useMapEvents({
+    zoomend: () => setTick((t) => t + 1),
+    moveend: () => setTick((t) => t + 1),
+  });
+
+  const clusters = useMemo(() => {
+    const points: PinPoint[] = dogs.map((dog) => {
+      const { x, y } = map.latLngToContainerPoint([dog.location.lat, dog.location.lng]);
+      return { id: dog.id, x, y, dog };
+    });
+    return clusterPoints(points, CLUSTER_RADIUS_PX);
+    // `tick` exists only to force a recompute on pan/zoom, when the map's
+    // projection changes but `dogs` does not.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dogs, map, tick]);
+
+  return (
+    <>
+      {clusters.map((cluster) => {
+        if (cluster.points.length === 1) {
+          const dog = cluster.points[0].dog;
+          return (
+            <Marker key={dog.id} position={[dog.location.lat, dog.location.lng]} icon={PIN_ICONS[dog.status]}>
+              <Popup>
+                <strong className="block text-base">{dog.name}</strong>
+                <span className="block text-orange-600">{dog.breed}</span>
+                <span className="block text-gray-600">{dog.location.address}</span>
+                <Link href={`/dogs/${dog.id}`} className="mt-2 inline-block font-medium text-orange-600 underline">
+                  View details
+                </Link>
+              </Popup>
+            </Marker>
+          );
+        }
+
+        const bounds = L.latLngBounds(
+          cluster.points.map((p) => [p.dog.location.lat, p.dog.location.lng] as [number, number]),
+        );
+        return (
+          <Marker
+            key={`cluster-${cluster.points.map((p) => p.id).sort().join('-')}`}
+            position={bounds.getCenter()}
+            icon={buildClusterIcon(cluster.points.length)}
+            eventHandlers={{
+              click: () => map.fitBounds(bounds, { padding: [48, 48], maxZoom: 16 }),
+            }}
+          />
+        );
+      })}
+    </>
+  );
+}
+
 export default function DogMapCanvas({ dogs }: { dogs: Dog[] }) {
   const pinned = useMemo(
     () => dogs.filter((dog): dog is PinnedDog => dog.location.lat !== null && dog.location.lng !== null),
@@ -68,18 +146,7 @@ export default function DogMapCanvas({ dogs }: { dogs: Dog[] }) {
         maxZoom={19}
       />
       <FitBounds dogs={pinned} />
-      {pinned.map((dog) => (
-        <Marker key={dog.id} position={[dog.location.lat, dog.location.lng]} icon={PIN_ICONS[dog.status]}>
-          <Popup>
-            <strong className="block text-base">{dog.name}</strong>
-            <span className="block text-orange-600">{dog.breed}</span>
-            <span className="block text-gray-600">{dog.location.address}</span>
-            <Link href={`/dogs/${dog.id}`} className="mt-2 inline-block font-medium text-orange-600 underline">
-              View details
-            </Link>
-          </Popup>
-        </Marker>
-      ))}
+      <ClusteredMarkers dogs={pinned} />
     </MapContainer>
   );
 }
