@@ -2,6 +2,9 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTransition } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/field';
+import { cn } from '@/lib/cn';
 import type { DogStatus } from '@/lib/types';
 
 const FILTERS: { value: 'all' | DogStatus; label: string }[] = [
@@ -15,6 +18,9 @@ const FILTERS: { value: 'all' | DogStatus; label: string }[] = [
  * Filter state lives in the URL rather than component state so a search can be
  * shared or bookmarked, and so filtering happens in SQL instead of over a
  * fully-downloaded list.
+ *
+ * The status filters are wall-label links with `aria-pressed`, not chips
+ * (DESIGN.md → Components → Chips); the pressed one keeps its ink underline.
  */
 export default function DogFilters({ basePath = '/dogs' }: { basePath?: string }) {
   const router = useRouter();
@@ -46,12 +52,12 @@ export default function DogFilters({ basePath = '/dogs' }: { basePath?: string }
   };
 
   return (
-    <div className={`space-y-4 ${isPending ? 'opacity-70' : ''}`}>
+    <div className={cn('flex flex-col gap-5', isPending && 'opacity-70')}>
       <form onSubmit={submitSearch} className="flex gap-2">
         <label htmlFor="dog-search" className="sr-only">
           Search by name, breed, or location
         </label>
-        <input
+        <Input
           // Uncontrolled, keyed on the URL so a back/forward navigation resets it.
           key={activeQuery}
           id="dog-search"
@@ -59,32 +65,31 @@ export default function DogFilters({ basePath = '/dogs' }: { basePath?: string }
           type="search"
           defaultValue={activeQuery}
           placeholder="Search by name, breed, or location…"
-          className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a2e] focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          className="min-w-0 flex-1"
         />
-        <button
-          type="submit"
-          className="px-5 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-medium transition-colors"
-        >
+        <Button type="submit" variant="secondary">
           Search
-        </button>
+        </Button>
       </form>
 
-      <div className="flex flex-wrap gap-2">
-        {FILTERS.map((filter) => (
-          <button
-            key={filter.value}
-            type="button"
-            onClick={() => setStatus(filter.value)}
-            aria-pressed={activeStatus === filter.value}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeStatus === filter.value
-                ? 'bg-orange-500 text-white'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-            }`}
-          >
-            {filter.label}
-          </button>
-        ))}
+      <div role="group" aria-label="Filter by status" className="flex flex-wrap items-center gap-x-6 gap-y-1">
+        {FILTERS.map((filter) => {
+          const pressed = activeStatus === filter.value;
+          return (
+            <button
+              key={filter.value}
+              type="button"
+              onClick={() => setStatus(filter.value)}
+              aria-pressed={pressed}
+              className={cn(
+                'label-mono label-link ink-underline transition-colors duration-150 hover:text-primary',
+                pressed && 'text-primary',
+              )}
+            >
+              {filter.label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

@@ -26,34 +26,38 @@ const FAQS = [
 
 export default function ContactPage() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+      <div className="grid gap-12 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
         <div>
-          <h1 className="text-3xl font-bold mb-4">Get in touch</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-8">
+          <p className="label-mono">Contact</p>
+          <h1 className="text-page-title mt-3">Get in touch</h1>
+          <p className="mt-4 max-w-prose text-muted-foreground">
             Questions, suggestions, or a problem with a listing? Send us a message and we&apos;ll get back to you.
           </p>
 
-          <p className="mb-8 rounded-lg bg-orange-50 dark:bg-orange-950/30 p-4 text-sm text-gray-700 dark:text-gray-300">
+          <p className="mt-6 max-w-prose border-l border-border pl-4 text-sm text-muted-foreground">
             Trying to reach the person who reported a specific dog? Open their listing from the{' '}
-            <Link href="/dogs" className="font-medium text-orange-600 hover:text-orange-700 underline">
+            <Link href="/dogs" className="ink-underline font-medium text-primary">
               listings page
             </Link>{' '}
             and message them there — it reaches them directly.
           </p>
 
-          <h2 className="text-xl font-bold mb-4">Common questions</h2>
-          <dl className="space-y-5">
-            {FAQS.map((faq) => (
-              <div key={faq.question}>
-                <dt className="font-semibold mb-1">{faq.question}</dt>
-                <dd className="text-gray-600 dark:text-gray-400">{faq.answer}</dd>
-              </div>
-            ))}
-          </dl>
+          <section className="mt-12">
+            <p className="label-mono">Common questions</p>
+            <h2 className="text-section-title mt-3">Before you write</h2>
+            <dl className="mt-6 max-w-prose border-t border-border">
+              {FAQS.map((faq) => (
+                <div key={faq.question} className="border-b border-border py-5">
+                  <dt className="font-medium text-foreground">{faq.question}</dt>
+                  <dd className="mt-2 text-muted-foreground">{faq.answer}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
         </div>
 
-        <div className="bg-white dark:bg-[#1a1a2e] rounded-xl shadow-lg p-6">
+        <div className="rounded-xl border border-border bg-card p-6 sm:p-8 lg:self-start">
           <MessageForm
             heading="Send us a message"
             submitLabel="Send message"

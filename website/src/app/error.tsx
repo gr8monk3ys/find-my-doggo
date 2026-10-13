@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { Button } from '@/components/ui/button';
 
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
@@ -8,21 +9,18 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
   }, [error]);
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center px-4">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold mb-3">Something went wrong</h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md">
-          We hit an unexpected problem loading this page. Trying again usually clears it.
-        </p>
-        <button
-          type="button"
-          onClick={reset}
-          className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-6 rounded-lg transition-colors"
-        >
+    <div className="mx-auto flex min-h-[60vh] max-w-7xl flex-col justify-center px-4 py-16 sm:px-6 lg:px-8">
+      <p className="label-mono text-destructive">Error</p>
+      <h1 className="text-page-title mt-3">Something went wrong</h1>
+      <p className="mt-4 max-w-md text-muted-foreground">
+        We hit an unexpected problem loading this page. Trying again usually clears it.
+      </p>
+      <div className="mt-8">
+        <Button type="button" onClick={reset}>
           Try again
-        </button>
-        {error.digest && <p className="mt-6 text-xs text-gray-500">Reference: {error.digest}</p>}
+        </Button>
       </div>
+      {error.digest && <p className="label-mono mt-8">Reference {error.digest}</p>}
     </div>
   );
 }
