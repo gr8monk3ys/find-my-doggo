@@ -1,0 +1,41 @@
+# Releases are cut by release-please from conventional commits on master.
+#
+# Every push to master, the action opens (or refreshes) one "release PR" that
+# bumps website/package.json and writes website/CHANGELOG.md from the commits
+# since the last release. Merging that PR creates the vX.Y.Z tag and a GitHub
+# Release.
+#
+# The release PR is opened with GITHUB_TOKEN, and GitHub does not run workflows
+# for events that token creates, so the checks master requires never report on
+# it. Merging it needs `gh pr merge --admin`, which bypasses those checks: do it
+# only after confirming the PR's diff is exactly website/CHANGELOG.md plus the
+# version field in website/package.json, and nothing else. To give release PRs
+# a real CI run instead, add a fine-grained PAT (contents: write,
+# pull-requests: write) as the RELEASE_PLEASE_TOKEN secret and pass it as
+# `token:` below.
+#
+# The action is pinned to a commit, not a tag, so a moved tag upstream cannot
+# change what runs with write access to this repo.
+name: release-please
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
