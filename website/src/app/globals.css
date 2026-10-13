@@ -1,138 +1,740 @@
 @import "tailwindcss";
 
-:root {
-  --background: #fefefe;
-  --foreground: #1a1a2e;
-  --primary: #f97316;
-  --primary-dark: #ea580c;
-  --secondary: #3b82f6;
-  --accent: #10b981;
-  --muted: #6b7280;
-  --card-bg: #ffffff;
-  --border: #e5e7eb;
-}
+@custom-variant dark (&:is(.dark *));
 
+/* `can-hover:` — a real mouse, not a wide screen. */
+@custom-variant can-hover (@media (hover: hover) and (pointer: fine));
+
+/* `inline` matters: every colour here is hsl(var(--x)), and --x is swapped by
+ * the .dark class. Without `inline` Tailwind would resolve var(--primary)
+ * once on :root and every utility would inherit the light value under .dark.
+ * With `inline` utilities carry `hsl(var(--primary))` themselves and resolve
+ * it on the element.
+ *
+ * NOTE: never define --spacing-xs/sm/md/lg/xl/2xl here. In Tailwind v4 they
+ * generate spacing-suffixed utilities (max-w-2xl, w-lg, …) that shadow the
+ * container scale and silently collapse layouts. */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-dark: var(--primary-dark);
-  --color-secondary: var(--secondary);
-  --color-accent: var(--accent);
-  --color-muted: var(--muted);
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-scrim: hsl(var(--scrim));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-destructive-muted: hsl(var(--destructive-muted));
+
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+  --color-success-muted: hsl(var(--success-muted));
+
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+  --color-warning-muted: hsl(var(--warning-muted));
+
+  --color-info: hsl(var(--info));
+  --color-info-foreground: hsl(var(--info-foreground));
+  --color-info-muted: hsl(var(--info-muted));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  /* Soft-cornered interface: fields 8px (rounded-sm), small controls 10px
+   * (rounded-md), controls 14px (rounded-lg), cards 18px (rounded-xl). The
+   * scale is clamped at 18px, so rounded-2xl/-3xl resolve to the card radius.
+   * Dog photos are square plates — see the `plate` utility. */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.125rem;
+  --radius-2xl: 1.125rem;
+  --radius-3xl: 1.125rem;
+  --radius-4xl: 1.125rem;
+
+  /* Three voices with fixed jobs. Fraunces speaks, Instrument Sans reads,
+   * IBM Plex Mono catalogues. The --font-fraunces / --font-instrument-sans /
+   * --font-plex-mono variables are set on <html> by src/lib/fonts.ts. */
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-body: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-sans: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+
+  --default-transition-duration: var(--duration-default);
+  --transition-duration-fast: var(--duration-fast);
+  --transition-duration-slow: var(--duration-slow);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0f0f1a;
-    --foreground: #f5f5f5;
-    --card-bg: #1a1a2e;
-    --border: #2d2d44;
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1rem;
+  width: 100%;
+  @media (width >= 640px) {
+    padding-inline: 1.5rem;
+  }
+  @media (width >= 1024px) {
+    padding-inline: 2rem;
+  }
+  @media (width >= 1400px) {
+    max-width: 1400px;
   }
 }
 
-html {
-  /* The navigation is sticky, so anchor targets (including the skip link) must
-     stop short of the top edge or they land underneath it. */
-  scroll-padding-top: 5rem;
+/* Tailwind v4 defaults border-color to currentColor; the notebook's rules are
+ * always the hairline unless a site names another colour. */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: hsl(var(--border));
+  }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+/* ============================================================
+ * TOKENS — the stationery
+ * Paper and night are the same neutrals as lscaturchio.xyz and InfiniStar;
+ * only the ink differs. Bare HSL triplets so utilities can add alpha
+ * (`bg-primary/5`). tests/unit/design-tokens.test.ts measures every pair.
+ * ============================================================ */
+@layer base {
+  :root {
+    /* Paper. Warm off-white, hue 38. */
+    --background: 38 25% 97%;
+    --foreground: 210 15% 12%;
+    --card: 38 25% 98%;
+    --card-foreground: 210 15% 12%;
+    --popover: 38 25% 98%;
+    --popover-foreground: 210 15% 12%;
+
+    /* Terracotta Ink — the one pen. #a34929: 5.58:1 on paper, white on it
+     * 5.93:1. A clay-and-collar red that is unmistakably "dog" without being
+     * the orange it replaces. */
+    --primary: 16 60% 40%;
+    --primary-foreground: 0 0% 100%;
+    /* A lower-chroma terracotta for the rare secondary fill, so a second ink
+     * never has to be invented. 45%, not 50%: white on 50% measured 4.20:1. */
+    --secondary: 16 40% 45%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Paper Tinted: the recessed tone. */
+    --muted: 38 18% 92%;
+    --muted-foreground: 215 10% 42%;
+    /* Paper Warm: a sand highlight for hover fills. */
+    --accent: 32 50% 92%;
+    --accent-foreground: 215 15% 16%;
+
+    /* 38%, not shadcn's 60.2%: #ef4444 measures 3.58:1 on paper, under the
+     * body floor, and this app paints error text as body copy. */
+    --destructive: 0 72% 38%;
+    --destructive-foreground: 0 0% 98%;
+    --destructive-muted: 0 72% 38% / 0.1;
+
+    /* The sand hairline. Never neutral grey. */
+    --border: 30 18% 86%;
+    --input: 30 18% 86%;
+    --ring: 16 60% 40%;
+    --radius: 0.875rem;
+
+    /* Scrim: ink in both themes, never --foreground (which inverts). */
+    --scrim: 0 0% 4%;
+    --scrim-alpha: 0.25;
+
+    /* Status. Lost is Error, found is Success, reunited is Info; each clears
+     * 4.5:1 on paper and the -muted tint is a 10% wash. */
+    --success: 142 76% 26%;
+    --success-foreground: 0 0% 100%;
+    --success-muted: 142 76% 26% / 0.1;
+    --warning: 38 92% 30%;
+    --warning-foreground: 0 0% 100%;
+    --warning-muted: 38 92% 30% / 0.1;
+    --info: 217 91% 40%;
+    --info-foreground: 0 0% 100%;
+    --info-muted: 217 91% 40% / 0.1;
+
+    --duration-fast: 150ms;
+    --duration-default: 200ms;
+    --duration-slow: 300ms;
+  }
+
+  .dark {
+    /* Night: the same notebook read at night. Cool hue 220, ink lifted. */
+    --background: 220 15% 8%;
+    --foreground: 0 0% 98%;
+    --card: 220 15% 10%;
+    --card-foreground: 0 0% 98%;
+    --popover: 220 15% 10%;
+    --popover-foreground: 0 0% 98%;
+
+    /* #eaa486: 8.99:1 on night; night text on it 8.99:1. */
+    --primary: 18 70% 72%;
+    --primary-foreground: 220 15% 8%;
+    --secondary: 16 40% 40%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 220 10% 16%;
+    --muted-foreground: 220 10% 70%;
+    --accent: 210 16% 16%;
+    --accent-foreground: 0 0% 98%;
+
+    /* Lighter at night, like every other token. */
+    --destructive: 0 70% 70%;
+    --destructive-foreground: 220 15% 8%;
+    --destructive-muted: 0 70% 70% / 0.15;
+
+    --border: 220 10% 18%;
+    --input: 220 10% 18%;
+    --ring: 18 70% 72%;
+
+    --scrim-alpha: 0.55;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 0%;
+    --success-muted: 142 71% 45% / 0.15;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 0%;
+    --warning-muted: 38 92% 50% / 0.15;
+    --info: 217 91% 65%;
+    --info-foreground: 0 0% 0%;
+    --info-muted: 217 91% 65% / 0.15;
+  }
 }
 
-/* Status badge colors */
+/* ============================================================
+ * BASE — paper, type, focus, selection, grain
+ * ============================================================ */
+@layer base {
+  html {
+    /* The header is sticky, so anchor targets (including the skip link)
+     * must stop short of the top edge or they land underneath it. */
+    scroll-padding-top: 5rem;
+    /* Intentional, ink-tinted tap feedback instead of the platform grey. */
+    -webkit-tap-highlight-color: hsl(var(--primary) / 0.12);
+    caret-color: hsl(var(--primary));
+    scrollbar-color: hsl(var(--border)) transparent;
+    scrollbar-width: thin;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+    line-height: 1.65;
+    overflow-x: clip;
+  }
+
+  /* The Serif Speaks Rule: Fraunces on what the site says, nowhere else. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .text-display,
+  .text-page-title,
+  .text-section-title,
+  .text-card-title,
+  .text-subsection {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  /* Anchor targets land below the sticky header. */
+  [id] {
+    scroll-margin-top: 6rem;
+  }
+
+  /* No double-tap-to-zoom delay on controls. */
+  a,
+  button,
+  input,
+  label,
+  select,
+  summary,
+  textarea,
+  [role="button"] {
+    touch-action: manipulation;
+  }
+
+  /* Native selects ignore the theme on Windows dark mode unless told. */
+  select {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+
+  /* One focus treatment, as a default rather than an opt-in: a 2px ink
+   * outline at a 2px offset on everything focusable. The outline colour is
+   * pre-set so it never interpolates from currentColor on the first frame. */
+  :where(a, button, input, textarea, select, summary, [tabindex]) {
+    outline-color: hsl(var(--primary));
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+  }
+
+  /* Selecting text tints it with the ink — a small signature every reader touches. */
+  ::selection {
+    background: hsl(var(--primary) / 0.22);
+    color: hsl(var(--foreground));
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border: 3px solid hsl(var(--background));
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.45);
+  }
+
+  /* Paper grain: a fixed, near-invisible noise field that keeps large flat
+   * areas from reading as sterile screen-white. Pure CSS, no asset request. */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Reduced motion, actually collapsed. 0.01ms rather than 0s, because a
+   * zero duration can skip `transitionend` and hang code waiting on it. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+
+    /* Stated exception: a loading indicator still has to read as loading.
+     * Slowed, not stopped. */
+    .animate-pulse,
+    .animate-spin {
+      animation-duration: 3s !important;
+      animation-iteration-count: infinite !important;
+    }
+  }
+}
+
+/* ============================================================
+ * NOTEBOOK UTILITIES
+ * ============================================================ */
+
+/* The wall label: mono, small, tracked, uppercase, muted. Every piece of
+ * metadata — a date, a status, a breed, the catalogue line under a photo —
+ * is one of these. */
+@utility label-mono {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+  font-feature-settings: "tnum" 1;
+}
+
+/* A wall label that is also a tap target: WCAG 2.5.8's 24px floor on every
+ * pointer, 44px where the pointer is a finger. Deterministic (viewport or
+ * coarse pointer), not device-sniffed. */
+@utility label-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
+  min-width: 1.5rem;
+  @media (max-width: 767px), (hover: none) and (pointer: coarse) {
+    min-height: 2.75rem;
+  }
+}
+
+/* The pen gesture, and the site's only authored motion: a link's underline
+ * is scored in from the left under the cursor or the focus ring. It cannot
+ * fail closed and strand content the way an entrance animation can. */
+@utility ink-underline {
+  position: relative;
+  text-decoration: none;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: calc(50% + 0.62em);
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  &:hover::after,
+  &:focus-visible::after,
+  /* Kept on the active nav link and the pressed tag filter. */
+  &[aria-current="page"]::after,
+  &[aria-pressed="true"]::after {
+    transform: scaleX(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::after {
+      transition: none;
+    }
+  }
+}
+
+/* The one filled button: Terracotta, with a 1px ledge beneath its border so
+ * it feels pressed onto the page. One per view. One of the two sanctioned
+ * shadows (DESIGN.md → Elevation → The Two Sheets Rule);
+ * scripts/check-design-system.mjs allows `box-shadow` in this block only. */
+@utility cta-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: 1px solid hsl(var(--primary) / 0.42);
+  box-shadow: 0 1px 0 hsl(var(--primary) / 0.25);
+  transition:
+    filter var(--duration-fast) ease,
+    transform 100ms ease;
+
+  &:hover {
+    color: hsl(var(--primary-foreground));
+    filter: brightness(1.06);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:disabled,
+  &[aria-disabled="true"] {
+    background-color: hsl(var(--muted));
+    color: hsl(var(--muted-foreground));
+    border-color: hsl(var(--border));
+    box-shadow: none;
+    filter: none;
+  }
+}
+
+/* Paper Card surface with a hairline. Hover warms the border and tints the
+ * paper. It never lifts (The Flat Paper Rule). */
+@utility cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  color: hsl(var(--foreground));
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  transition:
+    background-color var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    color var(--duration-fast) ease,
+    transform 100ms ease;
+
+  &:hover {
+    color: hsl(var(--primary));
+    border-color: hsl(var(--primary) / 0.45);
+    background: hsl(var(--primary) / 0.05);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:disabled,
+  &[aria-disabled="true"] {
+    color: hsl(var(--muted-foreground));
+    border-color: hsl(var(--border));
+    background: hsl(var(--card));
+  }
+}
+
+/* Field: Paper Card fill, hairline, focus warms the border. The global
+ * :focus-visible outline is the ring. */
+@utility input-field {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--input));
+  color: hsl(var(--foreground));
+  transition: border-color var(--duration-fast) ease;
+
+  &::placeholder {
+    color: hsl(var(--muted-foreground) / 0.8);
+  }
+
+  &:focus {
+    border-color: hsl(var(--primary) / 0.5);
+  }
+
+  &[aria-invalid="true"] {
+    border-color: hsl(var(--destructive));
+  }
+}
+
+/* The photo plate: square corners and a hairline on tinted paper — the dog's
+ * photograph, pasted onto the page. Squareness marks the work; roundness
+ * marks the interface. No hover scale, no gradient scrim. */
+@utility plate {
+  border: 1px solid hsl(var(--border));
+  border-radius: 0;
+  background: hsl(var(--muted));
+  overflow: hidden;
+  transition: border-color var(--duration-default) ease;
+}
+
+/* Full-width hairline between sections. */
+@utility gallery-rule {
+  border: 0;
+  border-top: 1px solid hsl(var(--border));
+  width: 100%;
+  margin: 0;
+}
+
+/* A modal separates with a scrim, not a shadow (The Scrim Rule). */
+@utility overlay-scrim {
+  background: hsl(var(--scrim) / var(--scrim-alpha));
+}
+
+/* Type scale: fluid, weights stepping 720 → 700 → 650 → 620 → 560, tracking
+ * loosening as size falls. The base layer gives these Fraunces. */
+@utility text-display {
+  font-size: clamp(2.4rem, 5.2vw, 4.9rem);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  font-weight: 720;
+  font-variant-numeric: oldstyle-nums;
+}
+
+@utility text-page-title {
+  font-size: clamp(1.9rem, 3.6vw, 3.2rem);
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+}
+
+@utility text-section-title {
+  font-size: clamp(1.55rem, 2.4vw, 2.25rem);
+  line-height: 1.18;
+  letter-spacing: -0.026em;
+  font-weight: 650;
+}
+
+@utility text-card-title {
+  font-size: 1.25rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  font-weight: 620;
+}
+
+@utility text-subsection {
+  font-size: 1.075rem;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  font-weight: 560;
+}
+
+/* ============================================================
+ * LEGACY STATUS PILLS, FLATTENED
+ * StatusBadge still paints these three classes until the pages PR replaces
+ * it with a mono wall label in the signal token. They paint the tokens now
+ * and go when their last use does; scripts/check-design-system.mjs ratchets
+ * the `status-pill` count so it can only fall.
+ * ============================================================ */
 .status-lost {
-  background-color: #fef2f2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
+  color: hsl(var(--destructive));
+  background-color: hsl(var(--destructive-muted));
+  border: 1px solid hsl(var(--destructive) / 0.3);
 }
 
 .status-found {
-  background-color: #f0fdf4;
-  color: #16a34a;
-  border: 1px solid #bbf7d0;
+  color: hsl(var(--success));
+  background-color: hsl(var(--success-muted));
+  border: 1px solid hsl(var(--success) / 0.3);
 }
 
 .status-reunited {
-  background-color: #eff6ff;
-  color: #2563eb;
-  border: 1px solid #bfdbfe;
+  color: hsl(var(--info));
+  background-color: hsl(var(--info-muted));
+  border: 1px solid hsl(var(--info) / 0.3);
 }
 
-@media (prefers-color-scheme: dark) {
-  .status-lost {
-    background-color: #450a0a;
-    border-color: #7f1d1d;
-  }
-  .status-found {
-    background-color: #052e16;
-    border-color: #166534;
-  }
-  .status-reunited {
-    background-color: #172554;
-    border-color: #1e40af;
-  }
+/* ============================================================
+ * THE MAP — Leaflet on paper
+ * Tiles are muted so the page's one ink stays the ink; at night the tiles
+ * are inverted and dimmed. Pins and clusters are drawn in CSS (Leaflet's
+ * bundled PNGs resolve by relative URL and break under bundlers) and tell
+ * status by fill: lost is a filled ink disc, found a paper disc with an ink
+ * ring, reunited a tinted-paper disc with a muted ring. Popups and controls
+ * are notebook cards: card paper, a hairline, no shadow.
+ * ============================================================ */
+.leaflet-container {
+  background: hsl(var(--muted));
+  font: inherit;
+  font-family: var(--font-body);
 }
 
-/* Leaflet markers are drawn in CSS so Leaflet's bundled PNG icons, which it
-   resolves by relative URL, never have to be located by the bundler. */
+.leaflet-tile-pane {
+  filter: saturate(0.35) contrast(0.92) brightness(1.03);
+}
+
+.dark .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.75) saturate(0.35) contrast(0.92);
+}
+
+/* The marker box is 34×34 anchored at its bottom centre; the 20px disc sits
+ * at the bottom of the box so the geographic point is the disc's base. */
 .dog-pin__dot {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
+  display: block;
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  margin: 14px auto 0;
   border-radius: 9999px;
-  border: 2px solid #ffffff;
-  box-shadow: 0 2px 6px rgb(0 0 0 / 35%);
-  font-size: 18px;
-  line-height: 1;
+  border: 2px solid hsl(var(--primary));
+  background: hsl(var(--primary));
+  /* The divIcon markup still carries a decorative glyph until the pages PR
+   * drops it; the disc is the whole mark. */
+  font-size: 0;
+  color: transparent;
   /* Purely decorative: Leaflet's marker element owns the click. */
   pointer-events: none;
 }
 
 .dog-pin__dot--lost {
-  background: #ef4444;
+  background: hsl(var(--primary));
 }
 
 .dog-pin__dot--found {
-  background: #22c55e;
+  background: hsl(var(--card));
 }
 
 .dog-pin__dot--reunited {
-  background: #3b82f6;
+  background: hsl(var(--muted));
+  border-color: hsl(var(--muted-foreground) / 0.55);
 }
 
-/* Overlapping pins collapse into one of these; the count is the only content. */
+/* Overlapping pins collapse into one of these; the count is the only
+ * content. The box is 38×38 anchored at its centre. */
 .dog-pin-cluster__dot {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  box-sizing: border-box;
+  width: 30px;
+  height: 30px;
+  margin: 4px;
   border-radius: 9999px;
-  border: 2px solid #ffffff;
-  box-shadow: 0 2px 6px rgb(0 0 0 / 35%);
-  background: #f97316;
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 700;
+  border: 2px solid hsl(var(--card));
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  font-feature-settings: "tnum" 1;
   line-height: 1;
   /* Purely decorative: Leaflet's marker element owns the click. */
   pointer-events: none;
 }
 
-/* Leaflet renders its own controls and popups; keep them readable in dark mode. */
-.leaflet-container {
-  background: #dfe3e6;
-  font: inherit;
+/* leaflet.css is imported by the map component and loads after this file;
+ * every rule below carries a `.leaflet-container` prefix so it outranks
+ * Leaflet's own `.leaflet-bar a` / `.leaflet-touch .leaflet-bar` rules. */
+.leaflet-container .leaflet-popup-content-wrapper,
+.leaflet-container .leaflet-popup-tip {
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
+  box-shadow: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  .leaflet-container {
-    background: #1a1a2e;
-  }
+.leaflet-container .leaflet-popup-content-wrapper {
+  border-radius: 10px;
+}
+
+.leaflet-container .leaflet-popup-content {
+  margin: 12px 16px;
+  line-height: 1.5;
+}
+
+.leaflet-container .leaflet-popup-content p {
+  margin: 0;
+}
+
+.leaflet-container .leaflet-popup-content a,
+.leaflet-container .leaflet-control a,
+.leaflet-container a.leaflet-popup-close-button {
+  color: hsl(var(--primary));
+}
+
+.leaflet-container a.leaflet-popup-close-button:hover {
+  color: hsl(var(--foreground));
+}
+
+.leaflet-container .leaflet-bar {
+  border: 1px solid hsl(var(--border));
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+.leaflet-container .leaflet-bar a {
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  border-bottom-color: hsl(var(--border));
+}
+
+.leaflet-container .leaflet-bar a:hover,
+.leaflet-container .leaflet-bar a:focus {
+  background: hsl(var(--accent));
+  color: hsl(var(--primary));
+}
+
+.leaflet-container .leaflet-bar a.leaflet-disabled {
+  background: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+}
+
+.leaflet-container .leaflet-control-attribution {
+  background: hsl(var(--card) / 0.85);
+  color: hsl(var(--muted-foreground));
+  font-family: var(--font-mono);
+  font-size: 10px;
 }

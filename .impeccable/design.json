@@ -1,0 +1,575 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-13T12:00:00-07:00",
+  "title": "Design System: Find My Doggo",
+  "extensions": {
+    "colorMeta": {
+      "terracotta-ink": {
+        "role": "primary",
+        "displayName": "Terracotta Ink",
+        "canonical": "hsl(16 60% 40%)",
+        "tonalRamp": [
+          "hsl(16 60% 14%)",
+          "hsl(16 60% 24%)",
+          "hsl(16 60% 32%)",
+          "hsl(16 60% 40%)",
+          "hsl(16 60% 50%)",
+          "hsl(17 65% 60%)",
+          "hsl(18 70% 72%)",
+          "hsl(18 70% 88%)"
+        ]
+      },
+      "terracotta-ink-dark": {
+        "role": "primary",
+        "displayName": "Terracotta Ink (night)",
+        "canonical": "hsl(18 70% 72%)",
+        "tonalRamp": [
+          "hsl(16 60% 14%)",
+          "hsl(16 60% 24%)",
+          "hsl(16 60% 32%)",
+          "hsl(16 60% 40%)",
+          "hsl(16 60% 50%)",
+          "hsl(17 65% 60%)",
+          "hsl(18 70% 72%)",
+          "hsl(18 70% 88%)"
+        ]
+      },
+      "terracotta-soft": {
+        "role": "secondary",
+        "displayName": "Terracotta Soft",
+        "canonical": "hsl(16 40% 45%)",
+        "tonalRamp": [
+          "hsl(16 40% 14%)",
+          "hsl(16 40% 24%)",
+          "hsl(16 40% 34%)",
+          "hsl(16 40% 40%)",
+          "hsl(16 40% 45%)",
+          "hsl(16 40% 58%)",
+          "hsl(16 40% 74%)",
+          "hsl(16 40% 90%)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "hsl(38 25% 97%)",
+        "tonalRamp": [
+          "hsl(38 25% 20%)",
+          "hsl(38 25% 35%)",
+          "hsl(38 25% 50%)",
+          "hsl(38 25% 65%)",
+          "hsl(38 25% 80%)",
+          "hsl(38 25% 90%)",
+          "hsl(38 25% 94%)",
+          "hsl(38 25% 97%)"
+        ]
+      },
+      "paper-card": {
+        "role": "neutral",
+        "displayName": "Paper Card",
+        "canonical": "hsl(38 25% 98%)",
+        "tonalRamp": [
+          "hsl(38 25% 22%)",
+          "hsl(38 25% 38%)",
+          "hsl(38 25% 54%)",
+          "hsl(38 25% 70%)",
+          "hsl(38 25% 84%)",
+          "hsl(38 25% 92%)",
+          "hsl(38 25% 96%)",
+          "hsl(38 25% 98%)"
+        ]
+      },
+      "paper-tinted": {
+        "role": "neutral",
+        "displayName": "Paper Tinted",
+        "canonical": "hsl(38 18% 92%)",
+        "tonalRamp": [
+          "hsl(38 18% 16%)",
+          "hsl(38 18% 28%)",
+          "hsl(38 18% 40%)",
+          "hsl(38 18% 54%)",
+          "hsl(38 18% 68%)",
+          "hsl(38 18% 80%)",
+          "hsl(38 18% 88%)",
+          "hsl(38 18% 92%)"
+        ]
+      },
+      "paper-warm": {
+        "role": "neutral",
+        "displayName": "Paper Warm",
+        "canonical": "hsl(32 50% 92%)",
+        "tonalRamp": [
+          "hsl(32 50% 18%)",
+          "hsl(32 50% 30%)",
+          "hsl(32 50% 42%)",
+          "hsl(32 50% 54%)",
+          "hsl(32 50% 66%)",
+          "hsl(32 50% 78%)",
+          "hsl(32 50% 86%)",
+          "hsl(32 50% 92%)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "hsl(210 15% 12%)",
+        "tonalRamp": [
+          "hsl(210 15% 12%)",
+          "hsl(210 15% 20%)",
+          "hsl(210 15% 28%)",
+          "hsl(210 15% 38%)",
+          "hsl(210 15% 50%)",
+          "hsl(210 15% 64%)",
+          "hsl(210 15% 78%)",
+          "hsl(210 15% 92%)"
+        ]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Ink Muted",
+        "canonical": "hsl(215 10% 42%)",
+        "tonalRamp": [
+          "hsl(215 10% 14%)",
+          "hsl(215 10% 22%)",
+          "hsl(215 10% 32%)",
+          "hsl(215 10% 42%)",
+          "hsl(215 10% 54%)",
+          "hsl(215 10% 66%)",
+          "hsl(215 10% 80%)",
+          "hsl(215 10% 92%)"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "hsl(30 18% 86%)",
+        "tonalRamp": [
+          "hsl(30 18% 16%)",
+          "hsl(30 18% 28%)",
+          "hsl(30 18% 40%)",
+          "hsl(30 18% 52%)",
+          "hsl(30 18% 64%)",
+          "hsl(30 18% 76%)",
+          "hsl(30 18% 86%)",
+          "hsl(30 18% 94%)"
+        ]
+      },
+      "night": {
+        "role": "neutral",
+        "displayName": "Night",
+        "canonical": "hsl(220 15% 8%)",
+        "tonalRamp": [
+          "hsl(220 15% 8%)",
+          "hsl(220 15% 12%)",
+          "hsl(220 15% 18%)",
+          "hsl(220 15% 26%)",
+          "hsl(220 15% 38%)",
+          "hsl(220 15% 52%)",
+          "hsl(220 15% 70%)",
+          "hsl(220 15% 90%)"
+        ]
+      },
+      "night-card": {
+        "role": "neutral",
+        "displayName": "Night Card",
+        "canonical": "hsl(220 15% 10%)",
+        "tonalRamp": [
+          "hsl(220 15% 10%)",
+          "hsl(220 15% 14%)",
+          "hsl(220 15% 20%)",
+          "hsl(220 15% 28%)",
+          "hsl(220 15% 40%)",
+          "hsl(220 15% 54%)",
+          "hsl(220 15% 72%)",
+          "hsl(220 15% 90%)"
+        ]
+      },
+      "night-tinted": {
+        "role": "neutral",
+        "displayName": "Night Tinted",
+        "canonical": "hsl(220 10% 16%)",
+        "tonalRamp": [
+          "hsl(220 10% 16%)",
+          "hsl(220 10% 22%)",
+          "hsl(220 10% 30%)",
+          "hsl(220 10% 40%)",
+          "hsl(220 10% 52%)",
+          "hsl(220 10% 64%)",
+          "hsl(220 10% 78%)",
+          "hsl(220 10% 92%)"
+        ]
+      },
+      "night-ink": {
+        "role": "neutral",
+        "displayName": "Night Ink",
+        "canonical": "hsl(0 0% 98%)",
+        "tonalRamp": [
+          "hsl(0 0% 10%)",
+          "hsl(0 0% 25%)",
+          "hsl(0 0% 40%)",
+          "hsl(0 0% 55%)",
+          "hsl(0 0% 70%)",
+          "hsl(0 0% 82%)",
+          "hsl(0 0% 92%)",
+          "hsl(0 0% 98%)"
+        ]
+      },
+      "night-ink-muted": {
+        "role": "neutral",
+        "displayName": "Night Ink Muted",
+        "canonical": "hsl(220 10% 70%)",
+        "tonalRamp": [
+          "hsl(220 10% 14%)",
+          "hsl(220 10% 24%)",
+          "hsl(220 10% 34%)",
+          "hsl(220 10% 46%)",
+          "hsl(220 10% 58%)",
+          "hsl(220 10% 70%)",
+          "hsl(220 10% 82%)",
+          "hsl(220 10% 94%)"
+        ]
+      },
+      "night-hairline": {
+        "role": "neutral",
+        "displayName": "Night Hairline",
+        "canonical": "hsl(220 10% 18%)",
+        "tonalRamp": [
+          "hsl(220 10% 18%)",
+          "hsl(220 10% 24%)",
+          "hsl(220 10% 32%)",
+          "hsl(220 10% 42%)",
+          "hsl(220 10% 54%)",
+          "hsl(220 10% 66%)",
+          "hsl(220 10% 80%)",
+          "hsl(220 10% 92%)"
+        ]
+      },
+      "signal-error": {
+        "role": "semantic",
+        "displayName": "Error (lost)",
+        "canonical": "hsl(0 72% 38%)",
+        "tonalRamp": [
+          "hsl(0 72% 14%)",
+          "hsl(0 72% 24%)",
+          "hsl(0 72% 38%)",
+          "hsl(0 72% 48%)",
+          "hsl(0 72% 58%)",
+          "hsl(0 70% 70%)",
+          "hsl(0 70% 82%)",
+          "hsl(0 70% 94%)"
+        ]
+      },
+      "signal-success": {
+        "role": "semantic",
+        "displayName": "Success (found)",
+        "canonical": "hsl(142 76% 26%)",
+        "tonalRamp": [
+          "hsl(142 76% 10%)",
+          "hsl(142 76% 18%)",
+          "hsl(142 76% 26%)",
+          "hsl(142 74% 34%)",
+          "hsl(142 71% 45%)",
+          "hsl(142 71% 58%)",
+          "hsl(142 71% 74%)",
+          "hsl(142 71% 92%)"
+        ]
+      },
+      "signal-warning": {
+        "role": "semantic",
+        "displayName": "Warning",
+        "canonical": "hsl(38 92% 30%)",
+        "tonalRamp": [
+          "hsl(38 92% 12%)",
+          "hsl(38 92% 20%)",
+          "hsl(38 92% 30%)",
+          "hsl(38 92% 40%)",
+          "hsl(38 92% 50%)",
+          "hsl(38 92% 62%)",
+          "hsl(38 92% 76%)",
+          "hsl(38 92% 92%)"
+        ]
+      },
+      "signal-info": {
+        "role": "semantic",
+        "displayName": "Info (reunited)",
+        "canonical": "hsl(217 91% 40%)",
+        "tonalRamp": [
+          "hsl(217 91% 14%)",
+          "hsl(217 91% 24%)",
+          "hsl(217 91% 32%)",
+          "hsl(217 91% 40%)",
+          "hsl(217 91% 52%)",
+          "hsl(217 91% 65%)",
+          "hsl(217 91% 80%)",
+          "hsl(217 91% 94%)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The home masthead and nothing else. Fraunces 720, oldstyle numerals (text-display)."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "One per page (text-page-title)."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Section headings (text-section-title)."
+      },
+      "card-title": {
+        "displayName": "Card Title",
+        "purpose": "A dog's name on a plate or in a row, a popup title (text-card-title). A subsection step exists at 1.075rem / 560 (text-subsection)."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Reading text. Lead paragraphs use 1.125rem with text-pretty; descriptions 0.875-1rem in Ink Muted."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "The wall label (label-mono): kickers, dates, counts, the catalogue line under a plate (breed · status · date), the status in its signal token, footer column heads, the cluster badge. Uppercase, tracked, tabular numerals, Ink Muted."
+      }
+    },
+    "shadows": [
+      {
+        "name": "cta-ledge",
+        "value": "0 1px 0 hsl(var(--primary) / 0.25)",
+        "purpose": "The primary button (cta-primary) only: a 1px ledge beneath its border so the one filled button feels pressed onto the page. Removed when disabled. No other content surface carries a shadow at rest or on hover."
+      },
+      {
+        "name": "header-sheet",
+        "value": "0 8px 30px rgba(0,0,0,0.08)",
+        "purpose": "The sticky header only, so it reads as a separate sheet when content scrolls under it. Allowlisted in scripts/check-design-system.mjs."
+      }
+    ],
+    "motion": [
+      {
+        "name": "duration-fast",
+        "value": "150ms",
+        "purpose": "Button, field and link colour/border transitions (--duration-fast)."
+      },
+      {
+        "name": "duration-default",
+        "value": "200ms",
+        "purpose": "Tailwind default transition duration; plate border warming (--duration-default)."
+      },
+      {
+        "name": "duration-slow",
+        "value": "300ms",
+        "purpose": "Slow state changes (--duration-slow)."
+      },
+      {
+        "name": "ease-standard",
+        "value": "ease",
+        "purpose": "Every hover and focus transition on the notebook utilities."
+      },
+      {
+        "name": "cta-press",
+        "value": "transform 100ms ease; translateY(1px) on :active",
+        "purpose": "Primary and secondary buttons press one pixel down."
+      },
+      {
+        "name": "ink-underline",
+        "value": "transform 240ms cubic-bezier(0.16, 1, 0.3, 1); scaleX(0) to scaleX(1) from the left",
+        "purpose": "A link's underline scored in under the cursor or focus ring. The site's only authored motion; none under prefers-reduced-motion."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "animation-duration and transition-duration 0.01ms; loaders (animate-pulse, animate-spin) slow to 3s instead of stopping",
+        "purpose": "prefers-reduced-motion policy. 0.01ms rather than 0s so transitionend still fires."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" },
+      { "name": "2xl", "value": "1400px (container cap)" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one filled button per view (cta-primary; Button's default variant). Terracotta fill, white text, a 1px border of Terracotta at 42%, the 1px ledge. Hover brightens 6%; active presses 1px down.",
+      "html": "<button class=\"ds-btn-primary\">Report a dog</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 8px 16px; border-radius: 0.875rem; background-color: hsl(var(--primary, 16 60% 40%)); color: hsl(var(--primary-foreground, 0 0% 100%)); border: 1px solid hsl(var(--primary, 16 60% 40%) / 0.42); box-shadow: 0 1px 0 hsl(var(--primary, 16 60% 40%) / 0.25); font-family: var(--font-body, 'Instrument Sans'), ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; white-space: nowrap; cursor: pointer; transition: filter 150ms ease, transform 100ms ease; } .ds-btn-primary:hover { filter: brightness(1.06); } .ds-btn-primary:active { transform: translateY(1px); } .ds-btn-primary:focus-visible { outline: 2px solid hsl(var(--primary, 16 60% 40%)); outline-offset: 2px; } .ds-btn-primary:disabled { background-color: hsl(var(--muted, 38 18% 92%)); color: hsl(var(--muted-foreground, 215 10% 42%)); border-color: hsl(var(--border, 30 18% 86%)); box-shadow: none; filter: none; opacity: .6; pointer-events: none; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Every other button (cta-secondary; the secondary and destructive variants). Paper Card fill, hairline, Ink text; hover tints the fill to Terracotta at 5%, warms the border to 45% and the text to Terracotta. Never lifts.",
+      "html": "<button class=\"ds-btn-secondary\">Browse listings</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 8px 16px; border-radius: 0.875rem; color: hsl(var(--foreground, 210 15% 12%)); background: hsl(var(--card, 38 25% 98%)); border: 1px solid hsl(var(--border, 30 18% 86%)); font-family: var(--font-body, 'Instrument Sans'), ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; white-space: nowrap; cursor: pointer; transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 100ms ease; } .ds-btn-secondary:hover { color: hsl(var(--primary, 16 60% 40%)); border-color: hsl(var(--primary, 16 60% 40%) / 0.45); background: hsl(var(--primary, 16 60% 40%) / 0.05); } .ds-btn-secondary:active { transform: translateY(1px); } .ds-btn-secondary:focus-visible { outline: 2px solid hsl(var(--primary, 16 60% 40%)); outline-offset: 2px; } .ds-btn-secondary:disabled { color: hsl(var(--muted-foreground, 215 10% 42%)); border-color: hsl(var(--border, 30 18% 86%)); background: hsl(var(--card, 38 25% 98%)); opacity: .6; pointer-events: none; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Transparent until hovered, then Paper Card with a hairline and Terracotta text. Toolbar and icon actions, the mobile menu button.",
+      "html": "<button class=\"ds-btn-ghost\">Cancel</button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 8px 16px; border-radius: 0.875rem; border: 1px solid transparent; background: transparent; color: hsl(var(--foreground, 210 15% 12%)); font-family: var(--font-body, 'Instrument Sans'), ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease; } .ds-btn-ghost:hover { border-color: hsl(var(--border, 30 18% 86%)); background: hsl(var(--card, 38 25% 98%)); color: hsl(var(--primary, 16 60% 40%)); } .ds-btn-ghost:focus-visible { outline: 2px solid hsl(var(--primary, 16 60% 40%)); outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Field (input-field; Input / Textarea / Select in ui/field.tsx): Paper Card fill, hairline, 8px corners, 40px tall, a wall label above. Focus warms the border to Terracotta at 50% plus the global outline; invalid fields take an Error border.",
+      "html": "<label class=\"ds-label\" for=\"breed\">Breed</label><input id=\"breed\" class=\"ds-input\" type=\"text\" placeholder=\"Border Collie\" />",
+      "css": ".ds-label { display: block; margin: 0 0 8px; font-family: var(--font-mono, 'IBM Plex Mono'), ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: hsl(var(--muted-foreground, 215 10% 42%)); } .ds-input { display: flex; width: 100%; max-width: 320px; height: 40px; padding: 8px 12px; border-radius: 0.5rem; background: hsl(var(--card, 38 25% 98%)); border: 1px solid hsl(var(--input, 30 18% 86%)); color: hsl(var(--foreground, 210 15% 12%)); font-family: var(--font-body, 'Instrument Sans'), ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; transition: border-color 150ms ease; } .ds-input::placeholder { color: hsl(var(--muted-foreground, 215 10% 42%) / 0.8); } .ds-input:focus { border-color: hsl(var(--primary, 16 60% 40%) / 0.5); } .ds-input:focus-visible { outline: 2px solid hsl(var(--primary, 16 60% 40%)); outline-offset: 2px; } .ds-input[aria-invalid=\"true\"] { border-color: hsl(var(--destructive, 0 72% 38%)); } .ds-input:disabled { opacity: .5; cursor: not-allowed; }"
+    },
+    {
+      "name": "Chip / Badge",
+      "kind": "chip",
+      "refersTo": "badge-outline",
+      "description": "Fully round, 12px by 4px padding, 0.75rem semibold. The house chip is the outline: Paper Card with a hairline, Ink text. The filled badge is Terracotta and reserved for a single count. A dog's status is not a chip; it is a wall label in the signal token.",
+      "html": "<span class=\"ds-chip\">Husky</span> <span class=\"ds-chip ds-chip--filled\">3</span> <span class=\"ds-status\">Lost</span>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 9999px; border: 1px solid hsl(var(--border, 30 18% 86%)); background: hsl(var(--card, 38 25% 98%)); color: hsl(var(--foreground, 210 15% 12%)); font-family: var(--font-body, 'Instrument Sans'), ui-sans-serif, system-ui, sans-serif; font-size: 0.75rem; font-weight: 600; } .ds-chip--filled { border-color: transparent; background: hsl(var(--primary, 16 60% 40%)); color: hsl(var(--primary-foreground, 0 0% 100%)); } .ds-status { margin-left: 12px; font-family: var(--font-mono, 'IBM Plex Mono'), ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: hsl(var(--destructive, 0 72% 38%)); }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Paper Card on Paper, 1px hairline, 18px radius, 24px padding, no shadow. Title in Fraunces at Card Title; description in Ink Muted. Most text-led lists are hairline-divided rows rather than cards.",
+      "html": "<div class=\"ds-card\"><p class=\"ds-card__label\">How it works · 01</p><h3 class=\"ds-card__title\">Upload a photo</h3><p class=\"ds-card__desc\">Take a clear photo of the lost or found dog and add it to your report.</p></div>",
+      "css": ".ds-card { display: flex; flex-direction: column; gap: 6px; width: 320px; padding: 24px; border-radius: 1.125rem; border: 1px solid hsl(var(--border, 30 18% 86%)); background: hsl(var(--card, 38 25% 98%)); color: hsl(var(--card-foreground, 210 15% 12%)); font-family: var(--font-body, 'Instrument Sans'), ui-sans-serif, system-ui, sans-serif; } .ds-card__label { margin: 0; font-family: var(--font-mono, 'IBM Plex Mono'), ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: hsl(var(--muted-foreground, 215 10% 42%)); font-feature-settings: 'tnum' 1; } .ds-card__title { margin: 0; font-family: var(--font-display, Fraunces), ui-serif, Georgia, serif; font-optical-sizing: auto; font-size: 1.25rem; font-weight: 620; line-height: 1.2; letter-spacing: -0.02em; text-wrap: balance; } .ds-card__desc { margin: 0; font-size: 0.875rem; line-height: 1.65; color: hsl(var(--muted-foreground, 215 10% 42%)); }"
+    },
+    {
+      "name": "Wall Label",
+      "kind": "custom",
+      "refersTo": "wall-label",
+      "description": "The label-mono utility: IBM Plex Mono 500 at 0.72rem, 0.16em tracking, uppercase, tabular numerals, Ink Muted. The placard beside every piece of metadata; label-link adds the 24px (44px on touch) tap floor.",
+      "html": "<p class=\"ds-label\">Husky &middot; <span class=\"ds-label--lost\">Lost</span> &middot; Jan 15, 2024</p> <a class=\"ds-label ds-label--link\" href=\"#\">View all</a>",
+      "css": ".ds-label { margin: 0; font-family: var(--font-mono, 'IBM Plex Mono'), ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; line-height: 1.4; color: hsl(var(--muted-foreground, 215 10% 42%)); font-feature-settings: 'tnum' 1; } .ds-label--lost { color: hsl(var(--destructive, 0 72% 38%)); } .ds-label--link { display: inline-flex; align-items: center; min-height: 1.5rem; min-width: 1.5rem; text-decoration: none; transition: color 150ms ease; } .ds-label--link:hover, .ds-label--link:focus-visible { color: hsl(var(--primary, 16 60% 40%)); } .ds-label--link:focus-visible { outline: 2px solid hsl(var(--primary, 16 60% 40%)); outline-offset: 2px; } @media (max-width: 767px), (hover: none) and (pointer: coarse) { .ds-label--link { min-height: 2.75rem; } }"
+    },
+    {
+      "name": "Photo Plate",
+      "kind": "custom",
+      "refersTo": "plate",
+      "description": "A square-cornered 1:1 plate with a 1px hairline on tinted paper (the plate utility). Below it, outside the image: the dog's name in Fraunces at Card Title, then one mono catalogue line (breed · status · date) with the status in its signal token. Hover: the name turns Terracotta and the plate border warms. No scale, no scrim, no rounding, no pill over the photo.",
+      "html": "<a class=\"ds-plate-entry\" href=\"#\"><div class=\"ds-plate\"><span class=\"ds-plate__initial\">L</span></div><h3 class=\"ds-plate__name\">Luna</h3><p class=\"ds-plate__line\">Husky &middot; <span class=\"ds-plate__status\">Lost</span> &middot; Jan 15, 2024</p></a>",
+      "css": ".ds-plate-entry { display: flex; flex-direction: column; gap: 8px; width: 200px; color: hsl(var(--foreground, 210 15% 12%)); text-decoration: none; font-family: var(--font-body, 'Instrument Sans'), ui-sans-serif, system-ui, sans-serif; } .ds-plate { position: relative; display: flex; align-items: center; justify-content: center; aspect-ratio: 1 / 1; border: 1px solid hsl(var(--border, 30 18% 86%)); border-radius: 0; background: hsl(var(--muted, 38 18% 92%)); overflow: hidden; transition: border-color 200ms ease; } .ds-plate__initial { font-family: var(--font-display, Fraunces), ui-serif, Georgia, serif; font-optical-sizing: auto; font-size: 4rem; font-weight: 650; color: hsl(var(--primary, 16 60% 40%)); } .ds-plate__name { margin: 0; font-family: var(--font-display, Fraunces), ui-serif, Georgia, serif; font-optical-sizing: auto; font-size: 1.25rem; font-weight: 620; line-height: 1.2; letter-spacing: -0.02em; transition: color 150ms ease; } .ds-plate__line { margin: 0; font-family: var(--font-mono, 'IBM Plex Mono'), ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: hsl(var(--muted-foreground, 215 10% 42%)); font-feature-settings: 'tnum' 1; } .ds-plate__status { color: hsl(var(--destructive, 0 72% 38%)); } .ds-plate-entry:hover .ds-plate__name { color: hsl(var(--primary, 16 60% 40%)); } .ds-plate-entry:hover .ds-plate { border-color: hsl(var(--primary, 16 60% 40%) / 0.45); } .ds-plate-entry:focus-visible { outline: 2px solid hsl(var(--primary, 16 60% 40%)); outline-offset: 2px; }"
+    },
+    {
+      "name": "Map Pins",
+      "kind": "custom",
+      "refersTo": "brand-mark",
+      "description": "Leaflet markers drawn in CSS on muted tiles. Status told by fill: lost is a filled Terracotta disc, found a Paper Card disc with a Terracotta ring, reunited a Paper Tinted disc with a muted ring; a cluster is a 30px Terracotta disc with the count in mono. No shadow.",
+      "html": "<div class=\"ds-pins\"><span class=\"ds-pin ds-pin--lost\"></span><span class=\"ds-pin ds-pin--found\"></span><span class=\"ds-pin ds-pin--reunited\"></span><span class=\"ds-cluster\">4</span></div>",
+      "css": ".ds-pins { display: flex; align-items: center; gap: 16px; padding: 16px; background: hsl(var(--muted, 38 18% 92%)); } .ds-pin { display: block; box-sizing: border-box; width: 20px; height: 20px; border-radius: 9999px; border: 2px solid hsl(var(--primary, 16 60% 40%)); background: hsl(var(--primary, 16 60% 40%)); } .ds-pin--found { background: hsl(var(--card, 38 25% 98%)); } .ds-pin--reunited { background: hsl(var(--muted, 38 18% 92%)); border-color: hsl(var(--muted-foreground, 215 10% 42%) / 0.55); } .ds-cluster { display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 30px; height: 30px; border-radius: 9999px; border: 2px solid hsl(var(--card, 38 25% 98%)); background: hsl(var(--primary, 16 60% 40%)); color: hsl(var(--primary-foreground, 0 0% 100%)); font-family: var(--font-mono, 'IBM Plex Mono'), ui-monospace, Menlo, monospace; font-size: 12px; font-weight: 600; }"
+    },
+    {
+      "name": "Header",
+      "kind": "nav",
+      "refersTo": "wall-label",
+      "description": "The sticky header sheet: 72px, 90% paper with a 12px blur, a 40% hairline beneath, the one structural shadow. The lockup at the left, nav links in body sans with the ink underline (kept on aria-current=\"page\"), the theme pill at the right.",
+      "html": "<header class=\"ds-header\"><a class=\"ds-brand\" href=\"#\"><svg class=\"ds-brand__mark\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path fill=\"currentColor\" fill-rule=\"evenodd\" d=\"M0 0H24V24H0ZM9.284 9.9L14.716 9.9A2.9 2.9 0 1 1 19.228 12A2.9 2.9 0 1 1 14.716 14.1L9.284 14.1A2.9 2.9 0 1 1 4.772 12A2.9 2.9 0 1 1 9.284 9.9Z\"/></svg><span class=\"ds-wordmark\">Find My <span class=\"ds-wordmark__accent\">Doggo</span></span></a><nav class=\"ds-nav\"><a class=\"ds-nav__link\" href=\"#\" aria-current=\"page\">Lost &amp; found</a><a class=\"ds-nav__link\" href=\"#\">Map</a><a class=\"ds-nav__link\" href=\"#\">Report a dog</a></nav></header>",
+      "css": ".ds-header { position: sticky; top: 0; display: flex; align-items: center; gap: 40px; height: 72px; padding: 0 24px; border-bottom: 1px solid hsl(var(--border, 30 18% 86%) / 0.4); background: hsl(var(--background, 38 25% 97%) / 0.9); backdrop-filter: blur(12px); box-shadow: 0 8px 30px rgba(0,0,0,0.08); font-family: var(--font-body, 'Instrument Sans'), ui-sans-serif, system-ui, sans-serif; } .ds-brand { display: flex; align-items: center; gap: 12px; color: hsl(var(--foreground, 210 15% 12%)); text-decoration: none; } .ds-brand__mark { width: 22px; height: 22px; color: hsl(var(--primary, 16 60% 40%)); } .ds-wordmark { font-family: var(--font-display, Fraunces), ui-serif, Georgia, serif; font-optical-sizing: auto; font-size: 31.4px; font-weight: 700; line-height: 1; letter-spacing: -0.02em; } .ds-wordmark__accent { color: hsl(var(--primary, 16 60% 40%)); } .ds-nav { display: flex; gap: 28px; } .ds-nav__link { position: relative; font-size: 0.875rem; font-weight: 500; color: hsl(var(--foreground, 210 15% 12%)); text-decoration: none; transition: color 150ms ease; } .ds-nav__link::after { content: ''; position: absolute; left: 0; right: 0; top: calc(50% + 0.62em); height: 1px; background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-nav__link:hover, .ds-nav__link[aria-current=\"page\"] { color: hsl(var(--primary, 16 60% 40%)); } .ds-nav__link:hover::after, .ds-nav__link:focus-visible::after, .ds-nav__link[aria-current=\"page\"]::after { transform: scaleX(1); } .ds-nav__link:focus-visible { outline: 2px solid hsl(var(--primary, 16 60% 40%)); outline-offset: 2px; } @media (prefers-reduced-motion: reduce) { .ds-nav__link::after { transition: none; } }"
+    },
+    {
+      "name": "Brand Mark",
+      "kind": "custom",
+      "refersTo": "brand-mark",
+      "description": "The collar tag: a square Terracotta plate with a bone-shaped dog tag cut out of it in paper, one evenodd path so the tag is a true hole. Beside it the wordmark in Fraunces 700, Ink, with Doggo in Terracotta; the mark is as tall as the wordmark's capitals, 12px apart. No border, gradient, shadow or rotation. Minimum 16px for the mark, 96px for a lockup; clear space is 0.3 of the mark's height.",
+      "html": "<a class=\"ds-logo\" href=\"#\" aria-label=\"Find My Doggo\"><svg class=\"ds-logo__mark\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path fill=\"currentColor\" fill-rule=\"evenodd\" d=\"M0 0H24V24H0ZM9.284 9.9L14.716 9.9A2.9 2.9 0 1 1 19.228 12A2.9 2.9 0 1 1 14.716 14.1L9.284 14.1A2.9 2.9 0 1 1 4.772 12A2.9 2.9 0 1 1 9.284 9.9Z\"/></svg><span class=\"ds-logo__wordmark\">Find My <span class=\"ds-logo__accent\">Doggo</span></span></a>",
+      "css": ".ds-logo { display: inline-flex; align-items: center; gap: 12px; color: hsl(var(--foreground, 210 15% 12%)); text-decoration: none; } .ds-logo__mark { width: 24px; height: 24px; flex-shrink: 0; color: hsl(var(--primary, 16 60% 40%)); } .ds-logo__wordmark { font-family: var(--font-display, Fraunces), ui-serif, Georgia, serif; font-optical-sizing: auto; font-size: 34.29px; font-weight: 700; line-height: 1; letter-spacing: -0.02em; white-space: nowrap; } .ds-logo__accent { color: hsl(var(--primary, 16 60% 40%)); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Lost-Dog Noticeboard",
+    "overview": "Find My Doggo is a noticeboard, the kind pinned up outside a village shop: a sheet of paper for every dog, a photograph pasted on square, the name written large, and underneath it the facts in small capitals — breed, where, when, lost or found. Every listing is one of those sheets. The map is the parish map behind the counter with the sightings pinned to it. Nothing on the board is decorated, because the board is for being read in a hurry by someone who is worried.\n\nThe notebook is the same stationery as lscaturchio.xyz and InfiniStar, by design: warm off-white paper with a near-invisible grain, structure drawn with hairlines and space rather than boxes, a serif with personality for what the site says, a plain sans for what the reader reads, and a monospace label beside every piece of metadata. What tells the three notebooks apart is the pen. The personal site writes in forest green, InfiniStar in mulberry; Find My Doggo writes in Terracotta, the red of clay, collars and the orange the product used to wear, so it reads as the same site in a steadier hand rather than a rebrand.\n\nWhat this noticeboard keeps that the siblings do not have: the photo plate as the recurring unit of the board, the status label (lost / found / reunited) as a piece of mono metadata in a signal colour, and the map, which the notebook language extends to: muted tiles on paper, pins in the ink, popups as notebook cards.\n\nThe system deliberately is not three things. It is not the orange poster it replaced: no orange-to-orange gradient hero, no shadow-lg cards that lift on hover, no emoji standing in for a logo or an icon, no coloured pills over the photographs. It is not SaaS landing-page chrome: no three-column feature tiles, no badge decoration. And it is not a theme engine: one kind of paper, read by day or by night.",
+    "keyCharacteristics": [
+      "One paper ground, warm off-white with a fixed 3.5% noise grain; dark mode is a night variant of the same page.",
+      "One ink, Terracotta, spent sparingly: links, hover, selection, the map pins, the single primary button per view.",
+      "Hairline rules and tint shifts structure the page; there are no floating cards and no decorative shadows.",
+      "Three type voices with fixed jobs: Fraunces speaks, Instrument Sans reads, IBM Plex Mono catalogues.",
+      "Squareness marks the work (photo plates, the mark); roundness marks the interface (controls, chips, pins).",
+      "Status is metadata: a mono wall label in the matching signal token, never a coloured pill over the photo.",
+      "Motion is the interface responding to the reader, never the page introducing itself."
+    ],
+    "rules": [
+      {
+        "name": "The One Pen Rule",
+        "body": "Terracotta is the only chromatic accent on any surface, and it marks action or emphasis, never area. If a screen has terracotta in more than a few places, it has too many. No gradient anywhere, on anything.",
+        "section": "colors"
+      },
+      {
+        "name": "The Sand Hairline Rule",
+        "body": "Dividers are 1px of Hairline, sand-toned, never neutral grey and never thicker. Depth of structure is expressed by more rules and more space, not by darker lines.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tinted Paper Rule",
+        "body": "A \"contained\" surface is the same paper at a different tint (Paper Card lighter, Paper Tinted darker), bordered by a hairline. It is never a white box on a grey page.",
+        "section": "colors"
+      },
+      {
+        "name": "The Status Label Rule",
+        "body": "Lost, found and reunited are metadata, set as a mono wall label in the matching signal token beside the listing's facts. Never a coloured pill over the photograph, never a background wash behind the card.",
+        "section": "colors"
+      },
+      {
+        "name": "The Wall Label Rule",
+        "body": "Every piece of metadata (a date, a breed, a place, a status) is set as a Label: mono, small, uppercase, tracked, muted. Metadata never borrows the body or heading voice. Every section, row and figure introduces itself with one before its title — the kicker is the house device.",
+        "section": "typography"
+      },
+      {
+        "name": "The Serif Speaks Rule",
+        "body": "Fraunces appears only where the site is speaking: h1–h6, the type-scale utilities, the wordmark, dogs' names, stat numerals. Never in body copy, UI controls, form fields or labels. font-display on a non-heading fails the build unless the element carries data-voice=\"display\".",
+        "section": "typography"
+      },
+      {
+        "name": "The Fluid Heading Rule",
+        "body": "Headings scale with clamp(), not breakpoints; weights step down the hierarchy (720 → 700 → 650 → 620 → 560) and tracking loosens as size falls. A leading-* class is honoured over a responsive text-* size (Tailwind v4 routes line-height through --tw-leading), so write the line-height you mean.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Paper Rule",
+        "body": "No shadow on any content surface, at rest or on hover. A hovered surface changes tint and border colour; it does not rise. Leaflet's popups and controls are brought onto the same rule.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Two Sheets Rule",
+        "body": "The only elevated objects are the sticky header and the primary button's 1px ledge. Nothing else may add a shadow without changing this file first.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Scrim Rule",
+        "body": "A modal separates with a scrim, not a shadow. overlay-scrim — hsl(var(--scrim) / var(--scrim-alpha)), ink in both themes, 25% on paper and 55% at night — is the third sanctioned separation mechanism, and the only one available to an overlay. The scrim is ink rather than --foreground because --foreground inverts at night and would lay a white veil over the dark page.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Measure Rule",
+        "body": "Running text caps at 65–75 characters per line, measured in the DOM, not assumed from the unit.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do introduce every section, row and figure with a wall label before its title.",
+      "Do divide with 1px sand hairlines and 64–96px of vertical space; let whitespace and rules do the structuring.",
+      "Do spend Terracotta on action and emphasis only: links, hover, selection, pins, one primary button per view.",
+      "Do keep dogs' photographs as square plates in a gallery grid, and build text-led lists as stacked hairline-divided rows.",
+      "Do route every colour through the tokens; status is text-destructive (lost), text-success (found), text-info (reunited) and their -muted washes.",
+      "Do keep numerals tabular in labels and oldstyle in display, and set every date and count in mono.",
+      "Do design dark mode as the same notebook at night: cool hue-220 page, the ink lifted to 18 70% 72%, hairlines at 18% lightness.",
+      "Do give an empty section an honest empty state in the same voice: a wall label, one serif line, one primary action.",
+      "Do keep the map's pin and cluster class names; the e2e suite counts them."
+    ],
+    "donts": [
+      "Don't add shadows to content surfaces at rest or on hover; the header sheet and the CTA ledge are the only elevated objects.",
+      "Don't reintroduce gradients, glow, or glass cards; the orange poster is gone.",
+      "Don't use emoji as icons, logos or empty-state art.",
+      "Don't put a status pill over a photograph; status is a mono label beside the facts.",
+      "Don't use monospace as a voice. It is the label beside the work, never headings or body copy.",
+      "Don't set Fraunces in body text, controls or labels, and don't set body copy in anything but Instrument Sans.",
+      "Don't use neutral grey for rules or muted surfaces; every neutral is warm paper (hue 30–38) in light mode and cool night (hue 220) in dark.",
+      "Don't introduce a second accent colour; Terracotta Soft exists for secondary fills and the four signal colours are for status only.",
+      "Don't round a photo plate or scale it on hover; squareness marks the work.",
+      "Don't define --spacing-xs..4xl tokens in @theme; in Tailwind v4 they shadow the max-w-* container scale and collapse layouts.",
+      "Don't animate content in."
+    ]
+  }
+}
