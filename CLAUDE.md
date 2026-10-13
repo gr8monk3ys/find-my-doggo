@@ -31,9 +31,10 @@ releases: `release-please` (`.github/workflows/release-please.yml`, config at th
 `packages.website`) keeps one release PR open against master that bumps `website/package.json`
 and writes `website/CHANGELOG.md`. Merging it tags `vX.Y.Z` (no component prefix) and publishes a
 GitHub Release. The release PR carries no CI run (it is opened by `GITHUB_TOKEN`), so it is merged
-with `gh pr merge --admin` — only after `gh pr diff` shows exactly `website/CHANGELOG.md` and the
-version field in `website/package.json`; anything else in that diff means something is wrong, not
-that the bypass should widen. A `feat` bumps minor, a `fix` bumps patch, a `!`/`BREAKING CHANGE`
+with `gh pr merge --admin` — only after `gh pr diff --name-only` shows exactly four files:
+`website/CHANGELOG.md`, the version field in `website/package.json` and `website/package-lock.json`,
+and `.release-please-manifest.json`; anything else in that diff means something is wrong, not that
+the bypass should widen. A `feat` bumps minor, a `fix` bumps patch, a `!`/`BREAKING CHANGE`
 bumps major; `Release-As: x.y.z` in a commit footer forces a version.
 
 ## Working conventions
