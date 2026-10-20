@@ -132,12 +132,24 @@ describe('sendSupportEmail cap', () => {
     expect(await sendSupportEmail('contact', NOTE)).toBe(true);
   });
 
-  it('releases the reservation when the mailer fails, so a transient error does not burn a slot', async () => {
+  it('keeps the reservation when the mailer fails: the cap counts attempts, so failing sends cannot drive unbounded provider calls', async () => {
     configureMailer();
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    vi.stubGlobal('fetch', vi.fn(async () => new Response('nope', { status: 422 })));
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const failing = vi.fn(async () => new Response('nope', { status: 422 }));
+    vi.stubGlobal('fetch', failing);
     expect(await sendSupportEmail('contact', NOTE)).toBe(false);
-    expect(await countKind('contact')).toBe(0);
+    expect(await countKind('contact')).toBe(1);
+
+    // Every failed attempt still consumes a slot, and once the window is full
+    // the provider is not called at all.
+    for (let i = 1; i < SUPPORT_EMAILS_PER_HOUR; i += 1) {
+      expect(await sendSupportEmail('contact', NOTE)).toBe(false);
+    }
+    expect(failing).toHaveBeenCalledTimes(SUPPORT_EMAILS_PER_HOUR);
+    expect(await sendSupportEmail('contact', NOTE)).toBe(false);
+    expect(failing).toHaveBeenCalledTimes(SUPPORT_EMAILS_PER_HOUR);
+    expect(await countKind('contact')).toBe(SUPPORT_EMAILS_PER_HOUR);
   });
 
   it('ignores attempts older than an hour', async () => {

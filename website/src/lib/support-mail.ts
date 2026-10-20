@@ -15,10 +15,13 @@ import type { MessageInput } from './validation';
  *
  * A slot is reserved atomically: one INSERT … SELECT whose WHERE counts the
  * window, so two concurrent requests cannot both squeeze through the last
- * slot (no count-then-insert race). If the mailer then fails the reservation
- * is deleted, so a transient Resend error does not burn a slot; the caller's
- * row is already persisted and reports `delivered: false`, and the operator
- * sees the failure in the log.
+ * slot (no count-then-insert race). The reservation stays whether or not the
+ * provider accepts the message: the cap counts ATTEMPTS, because releasing a
+ * slot on failure would let anyone drive unbounded provider calls by making
+ * sends fail (or time out). The caller's row is already persisted and reports
+ * `delivered: false`, and the operator sees the failure in the log. The only
+ * case that is not counted is "email not configured", which returns before a
+ * slot is reserved and calls no provider.
  *
  * Listing enquiries (finder → reporter) do not come through here; they are
  * per-client limited only.
@@ -61,11 +64,7 @@ export async function sendSupportEmail(kind: SupportMailKind, message: SupportEm
   }
   capLogged[kind] = false;
 
-  const sent = await sendEmail({ ...message, to });
-  if (!sent) {
-    await db.execute({ sql: `DELETE FROM email_sends WHERE id = ?`, args: [id] }).catch(() => {});
-  }
-  return sent;
+  return sendEmail({ ...message, to });
 }
 
 /** A general contact-form message, to the support inbox. */
