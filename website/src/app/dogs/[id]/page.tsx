@@ -104,6 +104,7 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
                 submitLabel="Send message"
                 successTitle="Message sent"
                 successBody="We've passed your message on. If they reply, it will come straight to your inbox."
+                savedBody="Your message is saved. Email delivery isn't set up on this deployment yet, so the reporter has not been notified yet."
               />
             )}
           </div>

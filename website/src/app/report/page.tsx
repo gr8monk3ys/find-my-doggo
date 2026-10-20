@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Button, ButtonLink } from '@/components/ui/button';
 import { Field, Input, Textarea } from '@/components/ui/field';
 import { cn } from '@/lib/cn';
+import type { Dog } from '@/lib/types';
 import { IMAGE_MIME_TYPES, validateImage } from '@/lib/validation';
 
 interface FormState {
@@ -37,7 +38,7 @@ export default function ReportPage() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [createdId, setCreatedId] = useState<string | null>(null);
+  const [created, setCreated] = useState<Dog | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const previewRef = useRef<HTMLCanvasElement>(null);
 
@@ -112,7 +113,7 @@ export default function ReportPage() {
     clearPhoto();
     setFieldErrors({});
     setFormError(null);
-    setCreatedId(null);
+    setCreated(null);
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -134,7 +135,7 @@ export default function ReportPage() {
         setFormError(payload.error ?? 'Something went wrong. Please try again.');
         return;
       }
-      setCreatedId(payload.dog?.id ?? null);
+      setCreated(payload.dog ?? null);
     } catch {
       setFormError('We could not reach the server. Please check your connection and try again.');
     } finally {
@@ -142,17 +143,22 @@ export default function ReportPage() {
     }
   };
 
-  if (createdId) {
+  if (created) {
+    // The API says whether the address resolved to coordinates; the copy follows
+    // it rather than promising a pin we may not have placed.
+    const onMap = created.location.lat !== null && created.location.lng !== null;
     return (
       <div className="mx-auto flex min-h-[60vh] max-w-7xl flex-col justify-center px-4 py-16 sm:px-6 lg:px-8">
         <p className="label-mono text-success">Published</p>
         <h2 className="text-page-title mt-3">Report published</h2>
         <p className="mt-4 max-w-xl text-muted-foreground">
-          Your listing is live. Anyone who recognises the dog can message you through the site — your email address is
-          not shown publicly.
+          {onMap
+            ? 'Your listing is live and it is on the map. '
+            : `Your listing is live. We could not place “${created.location.address}” on the map, so it appears under “Not on the map” on the map page. `}
+          Anyone who recognises the dog can message you through the site — your email address is not shown publicly.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href={`/dogs/${createdId}`}>View your listing</ButtonLink>
+          <ButtonLink href={`/dogs/${created.id}`}>View your listing</ButtonLink>
           <Button type="button" variant="secondary" onClick={reset}>
             Submit another report
           </Button>
@@ -287,7 +293,7 @@ export default function ReportPage() {
         <Field
           label={form.status === 'lost' ? 'Last seen location' : 'Found location'}
           htmlFor="address"
-          hint="A town, park, or street is enough — we place it on the map for you."
+          hint="A town, park, or street is enough — we try to place it on the map for you."
           error={fieldErrors.address}
           errorId="address-error"
         >

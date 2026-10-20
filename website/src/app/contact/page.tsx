@@ -32,7 +32,8 @@ export default function ContactPage() {
           <p className="label-mono">Contact</p>
           <h1 className="text-page-title mt-3">Get in touch</h1>
           <p className="mt-4 max-w-prose text-muted-foreground">
-            Questions, suggestions, or a problem with a listing? Send us a message and we&apos;ll get back to you.
+            Questions, suggestions, or a problem with a listing? Send us a message and we&apos;ll reply to the address
+            you give us.
           </p>
 
           <p className="mt-6 max-w-prose border-l border-border pl-4 text-sm text-muted-foreground">
@@ -63,6 +64,7 @@ export default function ContactPage() {
             submitLabel="Send message"
             successTitle="Message sent"
             successBody="Thanks for reaching out. We'll reply to the address you gave us."
+            savedBody="Your message is saved. Email delivery isn't set up on this deployment yet, so it may take longer to be seen."
           />
         </div>
       </div>

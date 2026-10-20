@@ -12,6 +12,16 @@ go through `POST /api/messages`, which resolves the address server-side. A unit
 test asserts this directly. Rebuilt as a Next.js app from a 2019 HackMerced
 dog-photo classifier, none of which survives in the tree.
 
+## Status
+
+**Private beta.** There is no public deployment yet: the 2019 Heroku app is gone and
+nothing has replaced it, so the only way to use Find My Doggo today is to run it locally
+(below). Things may break. Support is `support@lscaturchio.xyz` (the address in the
+footer; set `SUPPORT_EMAIL` to change it), and the quickest way to report a problem is
+the **Feedback** link in the header or the "tell us" link in the footer, which saves a
+note to the database and emails support when a mailer is configured. `GET /api/health`
+lists every optional integration a deployment has actually turned on.
+
 <p align="center">
   <img src="docs/screenshot.png" alt="The Lost &amp; found listings page: a search box, status filters, and cards for each reported dog with photo, breed, description and location" width="90%">
 </p>
@@ -40,13 +50,17 @@ SQLite database at `website/data/dev.db` and writes uploaded photos to
 | Geocoding       | OpenStreetMap Nominatim                | Same (set `GEOCODER_USER_AGENT`)              |
 | Map tiles       | OpenStreetMap                          | Same                                          |
 | Enquiry emails  | Logged to the console                  | Resend via `RESEND_API_KEY`                   |
+| Contact + feedback | Stored, logged to the console        | Stored, then emailed to `SUPPORT_EMAIL`       |
 
 Each of these switches over automatically when the relevant environment variable is
 present, so the same code runs in both places. Copy `website/.env.example` to
 `website/.env.local` to configure them.
 
-`GET /api/health` reports whether the database is reachable and which optional
-integrations are actually wired up.
+`GET /api/health` reports whether the database is reachable (and how long it took),
+the running version, and a `features` object with one boolean per optional
+integration. The UI follows the same flags: a contact message or enquiry that could
+not be emailed says "saved" rather than "sent", and a report whose address could not
+be geocoded says so instead of promising a map pin.
 
 ## Project layout
 
@@ -54,7 +68,7 @@ integrations are actually wired up.
 website/
 ├── src/
 │   ├── app/
-│   │   ├── api/          # REST handlers: dogs, messages, health
+│   │   ├── api/          # REST handlers: dogs, messages, feedback, health
 │   │   ├── dogs/         # listings and per-dog detail pages
 │   │   ├── map/          # Leaflet map view
 │   │   ├── report/       # report submission form
@@ -101,7 +115,11 @@ The app is a standard Next.js project rooted at `website/`.
 These are deliberate gaps, not bugs:
 
 - **No accounts.** Anyone can post, and nobody can edit or delete their own
-  listing. Takedowns go through the contact form.
+  listing. Takedowns go through the contact form, which reaches `SUPPORT_EMAIL`
+  once a mailer is configured.
+- **Feedback has no inbox UI.** Notes land in the `feedback` table; reviewers read
+  them with `GET /api/feedback` and `Authorization: Bearer $FEEDBACK_REVIEW_TOKEN`
+  (the route is a 404 until that variable is set).
 - **No moderation.** Submissions are validated but not reviewed. A public
   deployment needs a moderation queue and abuse reporting.
 - **Rate limiting is per-instance.** The in-memory limiter in `lib/rate-limit.ts`

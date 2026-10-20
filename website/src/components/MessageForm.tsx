@@ -11,8 +11,12 @@ interface MessageFormProps {
   intro?: string;
   defaultSubject?: string;
   submitLabel: string;
+  /** Shown when the API reports the message was emailed on. */
   successTitle: string;
   successBody: string;
+  /** Shown when it was stored but nobody was emailed (no mailer configured). */
+  savedTitle?: string;
+  savedBody: string;
 }
 
 interface FormState {
@@ -32,12 +36,15 @@ export default function MessageForm({
   submitLabel,
   successTitle,
   successBody,
+  savedTitle = 'Message saved',
+  savedBody,
 }: MessageFormProps) {
   const [form, setForm] = useState<FormState>({ ...EMPTY, subject: defaultSubject });
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [sent, setSent] = useState(false);
+  /** The API's own account of what happened; the success copy follows it. */
+  const [sent, setSent] = useState<{ delivered: boolean } | null>(null);
 
   const update = (key: keyof FormState) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((prev) => ({ ...prev, [key]: event.target.value }));
@@ -65,7 +72,7 @@ export default function MessageForm({
         setFormError(payload.error ?? 'Something went wrong. Please try again.');
         return;
       }
-      setSent(true);
+      setSent({ delivered: Boolean(payload.delivered) });
       setForm({ ...EMPTY, subject: defaultSubject });
     } catch {
       setFormError('We could not reach the server. Please check your connection and try again.');
@@ -77,10 +84,10 @@ export default function MessageForm({
   if (sent) {
     return (
       <div>
-        <p className="label-mono text-success">Sent</p>
-        <h2 className="text-card-title mt-2">{successTitle}</h2>
-        <p className="mt-2 text-sm text-muted-foreground">{successBody}</p>
-        <Button type="button" variant="secondary" className="mt-6" onClick={() => setSent(false)}>
+        <p className="label-mono text-success">{sent.delivered ? 'Sent' : 'Saved'}</p>
+        <h2 className="text-card-title mt-2">{sent.delivered ? successTitle : savedTitle}</h2>
+        <p className="mt-2 text-sm text-muted-foreground">{sent.delivered ? successBody : savedBody}</p>
+        <Button type="button" variant="secondary" className="mt-6" onClick={() => setSent(null)}>
           Send another message
         </Button>
       </div>

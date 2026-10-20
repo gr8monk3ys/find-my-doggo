@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import { FeedbackProvider } from '@/components/FeedbackDialog';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
@@ -53,11 +54,14 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           Skip to content
         </a>
         <ThemeProvider>
-          <Navbar />
-          <main id="main" className="grow">
-            {children}
-          </main>
-          <Footer />
+          {/* One feedback dialog for the whole app; the header and footer triggers open it. */}
+          <FeedbackProvider>
+            <Navbar />
+            <main id="main" className="grow">
+              {children}
+            </main>
+            <Footer />
+          </FeedbackProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -1,13 +1,14 @@
 import { readFile } from 'node:fs/promises';
 import { NextResponse } from 'next/server';
-import { isDurableStorage, resolveLocalUpload } from '@/lib/storage';
+import { features } from '@/lib/features';
+import { resolveLocalUpload } from '@/lib/storage';
 
 /**
  * Serves photos held by the local-disk storage adapter. When Vercel Blob is
  * configured, images are served from Blob's own CDN and this route is unused.
  */
 export async function GET(_request: Request, { params }: { params: Promise<{ filename: string }> }) {
-  if (isDurableStorage()) return new NextResponse(null, { status: 404 });
+  if (features().durableImageStorage) return new NextResponse(null, { status: 404 });
 
   const { filename } = await params;
   const target = resolveLocalUpload(filename);

@@ -36,11 +36,6 @@ export async function saveImage(file: File): Promise<string> {
   return `/uploads/${filename}`;
 }
 
-/** True when uploads survive a redeploy. Surfaced in the health check. */
-export function isDurableStorage(): boolean {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
-}
-
 const FILENAME_PATTERN = /^[0-9a-f-]{36}\.(jpg|png|webp)$/;
 
 const CONTENT_TYPES: Record<string, string> = {

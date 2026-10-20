@@ -2,6 +2,15 @@ import { z } from 'zod';
 
 const trimmed = (min: number, max: number) => z.string().trim().min(min).max(max);
 
+/** One email rule for every form: trimmed, lower-cased, RFC-shaped, 254 chars. */
+export const emailSchema = z.string().trim().toLowerCase().pipe(z.email()).pipe(z.string().max(254));
+
+/** The same rule, but an empty field means "none given" rather than an error. */
+export const optionalEmailSchema = z.preprocess(
+  (value) => (typeof value === 'string' && value.trim() === '' ? undefined : value),
+  emailSchema.optional(),
+);
+
 export const reportSchema = z.object({
   // Reporters often do not know a found dog's name, so this is optional and
   // normalised to "Unknown" rather than rejected.
@@ -11,7 +20,7 @@ export const reportSchema = z.object({
   description: trimmed(10, 2000),
   status: z.enum(['lost', 'found']),
   address: trimmed(3, 200),
-  contactEmail: z.string().trim().toLowerCase().pipe(z.email()).pipe(z.string().max(254)),
+  contactEmail: emailSchema,
   contactPhone: z.string().trim().max(30).optional().transform((v) => v || undefined),
 });
 
@@ -19,13 +28,22 @@ export type ReportInput = z.infer<typeof reportSchema>;
 
 export const messageSchema = z.object({
   name: trimmed(1, 80),
-  email: z.string().trim().toLowerCase().pipe(z.email()).pipe(z.string().max(254)),
+  email: emailSchema,
   subject: trimmed(3, 150),
   message: trimmed(10, 5000),
   dogId: z.string().trim().max(64).optional(),
 });
 
 export type MessageInput = z.infer<typeof messageSchema>;
+
+export const feedbackSchema = z.object({
+  // The path the dialog was opened from, so a note can be read in context.
+  page: z.string().trim().max(200).startsWith('/', 'Page must be a path on this site.'),
+  message: trimmed(10, 2000),
+  email: optionalEmailSchema,
+});
+
+export type FeedbackInput = z.infer<typeof feedbackSchema>;
 
 export const IMAGE_MAX_BYTES = 5 * 1024 * 1024;
 export const IMAGE_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;

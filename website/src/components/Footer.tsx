@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { Logo } from '@/components/brand/Logo';
+import { FeedbackTrigger } from '@/components/FeedbackDialog';
+import { betaLabel, supportEmail } from '@/lib/features';
 
 const SITE_LINKS = [
   { href: '/dogs', label: 'Lost & found dogs' },
@@ -23,8 +25,14 @@ const LINK = 'ink-underline label-link text-sm text-foreground transition-colors
  * The footer: a hairline above, a `1.1fr / 2fr` editorial split, column
  * heads in mono, links in sans with the ink underline, a hairline before the
  * legal line. No fill change — it is the same paper as the page.
+ *
+ * It also carries the two honest facts about this deployment: the support
+ * inbox (an address the owner reads) and the private-beta notice, one quiet
+ * mono line with the feedback trigger. Nothing else on the site says "beta".
  */
 export default function Footer() {
+  const support = supportEmail();
+
   return (
     <footer className="mt-auto border-t border-border/60">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
@@ -34,6 +42,10 @@ export default function Footer() {
             <p className="mt-4 max-w-sm text-sm text-muted-foreground">
               A community noticeboard for lost and found dogs. Free to use, no account needed.
             </p>
+            <h2 className="label-mono mt-8">Support</h2>
+            <a href={`mailto:${support}`} className={`${LINK} mt-2`}>
+              {support}
+            </a>
           </div>
 
           <div className="grid gap-10 sm:grid-cols-2">
@@ -65,7 +77,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 border-t border-border/60 pt-6 text-sm text-muted-foreground">
+        <div className="mt-12 flex flex-col gap-4 border-t border-border/60 pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>
             Find My Doggo is open source under the GPL-3.0 licence.{' '}
             <a
@@ -77,6 +89,13 @@ export default function Footer() {
               View the source on GitHub
             </a>
             .
+          </p>
+          <p className="label-mono">
+            {betaLabel} · things may break ·{' '}
+            {/* `uppercase` is repeated here because the UA stylesheet resets text-transform on buttons. */}
+            <FeedbackTrigger className="ink-underline label-link text-foreground uppercase transition-colors duration-150 hover:text-primary">
+              tell us
+            </FeedbackTrigger>
           </p>
         </div>
       </div>

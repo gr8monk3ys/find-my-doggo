@@ -63,6 +63,16 @@ const MIGRATIONS = [
      created_at TEXT NOT NULL
    )`,
   `CREATE INDEX IF NOT EXISTS idx_messages_dog ON messages (dog_id)`,
+  `CREATE TABLE IF NOT EXISTS feedback (
+     id         TEXT PRIMARY KEY,
+     page       TEXT NOT NULL,
+     message    TEXT NOT NULL,
+     email      TEXT,
+     user_agent TEXT,
+     status     TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'seen', 'done')),
+     created_at TEXT NOT NULL
+   )`,
+  `CREATE INDEX IF NOT EXISTS idx_feedback_created ON feedback (created_at DESC)`,
 ];
 
 /**
