@@ -4,6 +4,7 @@ import { createMessage, markMessageDelivered } from '@/lib/messages';
 import { forwardEnquiry } from '@/lib/notify';
 import { forwardContact } from '@/lib/support-mail';
 import { checkRateLimit, clientKey } from '@/lib/rate-limit';
+import { isSameOrigin } from '@/lib/same-origin';
 import { fieldErrors, messageSchema } from '@/lib/validation';
 
 export const dynamic = 'force-dynamic';
@@ -12,6 +13,10 @@ const MESSAGES_PER_HOUR = 10;
 const HOUR_MS = 60 * 60 * 1000;
 
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) {
+    return NextResponse.json({ error: 'Messages can only be sent from this site.' }, { status: 403 });
+  }
+
   const limit = checkRateLimit(`message:${clientKey(request)}`, MESSAGES_PER_HOUR, HOUR_MS);
   if (!limit.ok) {
     return NextResponse.json(
