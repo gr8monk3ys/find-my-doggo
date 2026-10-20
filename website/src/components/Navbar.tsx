@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Logo } from '@/components/brand/Logo';
+import { FeedbackTrigger } from '@/components/FeedbackDialog';
 import ThemeToggle from '@/components/theme/ThemeToggle';
 import { cn } from '@/lib/cn';
 
@@ -56,6 +57,8 @@ export default function Navbar() {
           </ul>
 
           <div className="flex items-center gap-2">
+            {/* The beta's one header mention: a small link that opens the feedback dialog. */}
+            <FeedbackTrigger className="ink-underline label-link mr-3 hidden text-sm font-medium text-foreground transition-colors duration-150 hover:text-primary md:inline-flex" />
             {/* Below md the pill would not fit beside the lockup; it moves into the menu.
                 A wrapper rather than a `hidden` on the pill itself, which carries its own
                 display utility. */}
@@ -101,6 +104,12 @@ export default function Navbar() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <FeedbackTrigger
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex min-h-11 w-full items-center border-b border-border/40 py-2 text-left text-base font-medium text-foreground transition-colors duration-150 hover:text-primary"
+                />
+              </li>
             </ul>
             <div className="mt-4 flex items-center justify-between gap-4">
               <span className="label-mono">Theme</span>

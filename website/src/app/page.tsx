@@ -12,7 +12,7 @@ const STEPS = [
   },
   {
     title: 'Add a location',
-    body: 'Type where the dog was last seen. We place it on the map for you.',
+    body: 'Type where the dog was last seen. We try to place it on the map for you.',
   },
   {
     title: 'Get in touch',

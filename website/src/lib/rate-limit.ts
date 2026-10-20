@@ -41,11 +41,22 @@ function pruneExpired(now: number): void {
   }
 }
 
-/** Best-effort client identity. Falls back to a shared bucket behind proxies. */
+/**
+ * Best-effort client identity. `x-real-ip` first: the platform (Vercel) sets
+ * it from the connection and a client cannot override it. Otherwise the LAST
+ * hop of `x-forwarded-for`: proxies append the address they saw, so the last
+ * value is the one the platform wrote, while the first is whatever the client
+ * sent in its own header and can be rotated freely to dodge the limit. Falls
+ * back to one shared bucket when neither header is present.
+ */
 export function clientKey(request: Request): string {
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) return forwarded.split(',')[0].trim();
-  return request.headers.get('x-real-ip') ?? 'unknown';
+  const real = request.headers.get('x-real-ip')?.trim();
+  if (real) return real;
+  const hops = (request.headers.get('x-forwarded-for') ?? '')
+    .split(',')
+    .map((hop) => hop.trim())
+    .filter(Boolean);
+  return hops.at(-1) ?? 'unknown';
 }
 
 export function resetRateLimitsForTests(): void {

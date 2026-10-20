@@ -1,22 +1,30 @@
+import { features } from './features';
 import type { DogWithContact } from './types';
 import type { MessageInput } from './validation';
 
-/**
- * Delivery seam for the one email this app actually needs to send: forwarding
- * an enquiry to whoever reported the dog, without publishing their address.
- *
- * With RESEND_API_KEY set this sends for real. Without it the message is still
- * persisted and this logs instead, so local development and CI need no
- * credentials. Failures never propagate — the sender has already been told
- * their message was received, and the row in `messages` is the source of truth.
- */
-export async function forwardEnquiry(dog: DogWithContact, message: MessageInput): Promise<boolean> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.NOTIFY_FROM_EMAIL;
+export interface EmailMessage {
+  to: string;
+  /** The sender, so a reply from the inbox goes straight back to them. */
+  replyTo?: string;
+  subject: string;
+  text: string;
+}
 
-  if (!apiKey || !from) {
+/**
+ * The one delivery seam: a raw Resend call, used for forwarding an enquiry to
+ * a reporter and, through lib/support-mail.ts (which adds a global hourly
+ * cap), for contact messages and beta feedback to the support inbox.
+ *
+ * With RESEND_API_KEY and NOTIFY_FROM_EMAIL set this sends for real. Without
+ * them it logs and returns false, so local development and CI need no
+ * credentials and the caller can tell the truth about what happened: every
+ * caller has already persisted the row, which is the source of truth. Failures
+ * never propagate.
+ */
+export async function sendEmail(message: EmailMessage): Promise<boolean> {
+  if (!features().emailDelivery) {
     console.info(
-      `[notify] enquiry for dog ${dog.id} from ${message.email} stored but not emailed ` +
+      `[notify] "${message.subject}" stored but not emailed ` +
         '(set RESEND_API_KEY and NOTIFY_FROM_EMAIL to enable delivery)',
     );
     return false;
@@ -25,32 +33,37 @@ export async function forwardEnquiry(dog: DogWithContact, message: MessageInput)
   try {
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
-      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from,
-        to: dog.contactEmail,
-        reply_to: message.email,
-        subject: `Find My Doggo: ${message.subject}`,
-        text:
-          `${message.name} (${message.email}) sent you a message about ${dog.name} (${dog.breed}), ` +
-          `reported ${dog.status} near ${dog.location.address}.\n\n${message.message}\n\n` +
-          'Reply to this email to reach them directly.',
+        from: process.env.NOTIFY_FROM_EMAIL,
+        to: message.to,
+        reply_to: message.replyTo,
+        subject: message.subject,
+        text: message.text,
       }),
       signal: AbortSignal.timeout(10_000),
     });
 
     if (!response.ok) {
-      console.error(`[notify] Resend rejected enquiry ${message.subject}: ${response.status}`);
+      console.error(`[notify] Resend rejected "${message.subject}": ${response.status}`);
       return false;
     }
     return true;
   } catch (error) {
-    console.error('[notify] failed to forward enquiry', error);
+    console.error(`[notify] failed to send "${message.subject}"`, error);
     return false;
   }
 }
 
-/** True when enquiries are actually delivered. Surfaced in the health check. */
-export function isEmailConfigured(): boolean {
-  return Boolean(process.env.RESEND_API_KEY && process.env.NOTIFY_FROM_EMAIL);
+/** Forwards an enquiry to whoever reported the dog, without publishing their address. */
+export function forwardEnquiry(dog: DogWithContact, message: MessageInput): Promise<boolean> {
+  return sendEmail({
+    to: dog.contactEmail,
+    replyTo: message.email,
+    subject: `Find My Doggo: ${message.subject}`,
+    text:
+      `${message.name} (${message.email}) sent you a message about ${dog.name} (${dog.breed}), ` +
+      `reported ${dog.status} near ${dog.location.address}.\n\n${message.message}\n\n` +
+      'Reply to this email to reach them directly.',
+  });
 }

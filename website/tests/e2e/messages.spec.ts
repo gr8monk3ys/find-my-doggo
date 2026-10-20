@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('a listing enquiry is accepted and never exposes the reporter email', async ({ page }) => {
+test('a listing enquiry is saved, says so honestly, and never exposes the reporter email', async ({ page }) => {
   await page.goto('/dogs?q=Husky');
   await page.getByRole('link', { name: /View details/ }).first().click();
   await expect(page.getByRole('heading', { name: 'Luna', level: 1 })).toBeVisible();
@@ -13,7 +13,11 @@ test('a listing enquiry is accepted and never exposes the reporter email', async
   await page.getByLabel('Message').fill('I think I saw this husky near the park entrance around 8am today.');
   await page.getByRole('button', { name: 'Send message' }).click();
 
-  await expect(page.getByRole('heading', { name: 'Message sent' })).toBeVisible();
+  // No mailer in the e2e environment: the message is stored, the reporter is
+  // not notified, and the success copy must say exactly that.
+  await expect(page.getByRole('heading', { name: 'Message saved' })).toBeVisible();
+  await expect(page.getByText('the reporter has not been notified yet')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Message sent' })).toHaveCount(0);
   await expect(page.locator('body')).not.toContainText('@example.com', { useInnerText: true });
 });
 

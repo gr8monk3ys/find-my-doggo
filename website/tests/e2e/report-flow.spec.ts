@@ -39,6 +39,8 @@ test('a reported dog is persisted, viewable, and searchable', async ({ page }) =
   await page.getByRole('button', { name: 'Submit report' }).click();
 
   await expect(page.getByRole('heading', { name: 'Report published' })).toBeVisible();
+  // Geocoding is off in this environment, so the honest outcome is "not on the map".
+  await expect(page.getByText(/could not place .* on the map/)).toBeVisible();
 
   // The listing is real: following the link loads it from the database.
   await page.getByRole('link', { name: 'View your listing' }).click();

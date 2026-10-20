@@ -60,10 +60,48 @@ const MIGRATIONS = [
      email      TEXT NOT NULL,
      subject    TEXT NOT NULL,
      body       TEXT NOT NULL,
+     delivered  INTEGER NOT NULL DEFAULT 0,
      created_at TEXT NOT NULL
    )`,
   `CREATE INDEX IF NOT EXISTS idx_messages_dog ON messages (dog_id)`,
+  `CREATE TABLE IF NOT EXISTS feedback (
+     id         TEXT PRIMARY KEY,
+     page       TEXT NOT NULL,
+     message    TEXT NOT NULL,
+     email      TEXT,
+     user_agent TEXT,
+     status     TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'seen', 'done')),
+     delivered  INTEGER NOT NULL DEFAULT 0,
+     created_at TEXT NOT NULL
+   )`,
+  `CREATE INDEX IF NOT EXISTS idx_feedback_created ON feedback (created_at DESC)`,
+  // One row per attempted email to the support inbox; lib/support-mail.ts
+  // counts the last hour's rows to cap the sink across instances.
+  `CREATE TABLE IF NOT EXISTS email_sends (
+     id         TEXT PRIMARY KEY,
+     kind       TEXT NOT NULL,
+     created_at TEXT NOT NULL
+   )`,
+  `CREATE INDEX IF NOT EXISTS idx_email_sends_kind_created ON email_sends (kind, created_at DESC)`,
 ];
+
+/**
+ * Columns added after a table first shipped. `CREATE TABLE IF NOT EXISTS`
+ * leaves an existing table alone, and SQLite has no `ADD COLUMN IF NOT
+ * EXISTS`, so each is applied only when `PRAGMA table_info` says it is
+ * missing. The CREATE statements above carry the same columns for fresh
+ * databases.
+ */
+const COLUMN_ADDITIONS = [{ table: 'messages', column: 'delivered', definition: 'INTEGER NOT NULL DEFAULT 0' }];
+
+async function addMissingColumns(): Promise<void> {
+  const db = getClient();
+  for (const { table, column, definition } of COLUMN_ADDITIONS) {
+    const info = await db.execute(`PRAGMA table_info(${table})`);
+    if (info.rows.some((row) => row.name === column)) continue;
+    await db.execute(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  }
+}
 
 /**
  * Idempotent, so it is safe to call on every request. The promise is cached so
@@ -73,7 +111,7 @@ export function ensureSchema(): Promise<void> {
   if (!schemaReady) {
     schemaReady = getClient()
       .batch(MIGRATIONS, 'write')
-      .then(() => undefined)
+      .then(addMissingColumns)
       .catch((err) => {
         // Let the next request retry rather than caching a failed migration.
         schemaReady = undefined;

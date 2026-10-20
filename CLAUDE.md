@@ -49,11 +49,15 @@ bumps major; `Release-As: x.y.z` in a commit footer forces a version.
 ## Where things live
 
 - `website/src/app/` — routes: `/` (home), `/dogs`, `/dogs/[id]`, `/map`, `/report`, `/contact`,
-  `/uploads/[filename]` (serves local disk uploads), `api/{dogs,messages,health}`
+  `/uploads/[filename]` (serves local disk uploads), `api/{dogs,messages,feedback,health}`
 - `website/src/lib/` — `db.ts` (libSQL client; tables are created on first request by
   `ensureSchema`, there is no migrations directory), `dogs.ts` (`toPublicDog` is the PII
-  chokepoint), `messages.ts`, `notify.ts` (Resend), `storage.ts` (disk or Blob), `geocode.ts`
-  (Nominatim), `rate-limit.ts` (in-memory, per instance), `validation.ts` (zod), `site.ts`
+  chokepoint), `messages.ts`, `feedback.ts`, `notify.ts` (one `sendEmail` Resend seam behind
+  `forwardEnquiry` / `forwardContact`), `features.ts` (every capability flag read from env, plus
+  `supportEmail()` and the beta label — gate copy on these, never on raw env), `storage.ts`
+  (disk or Blob), `geocode.ts` (Nominatim), `rate-limit.ts` (in-memory, per instance),
+  `same-origin.ts` (the Origin / Sec-Fetch-Site check for mutating routes), `validation.ts`
+  (zod), `site.ts`
 - `website/src/components/` — navbar, footer, cards, map (`DogMap` → client-only `DogMapCanvas`),
   forms
 - `website/tests/unit` (Vitest, node environment), `website/tests/e2e` (Playwright, production
@@ -71,8 +75,20 @@ bumps major; `Release-As: x.y.z` in a commit footer forces a version.
 - Local uploads are written under `data/uploads`, not `public/`, and served by the `/uploads`
   route handler — `next start` resolves `public/` once at boot.
 - Without `BLOB_READ_WRITE_TOKEN` uploads go to the local filesystem, which does not survive a
-  serverless deploy; without `RESEND_API_KEY` + `NOTIFY_FROM_EMAIL` enquiries are stored but not
-  emailed. `GET /api/health` reports which integrations are configured.
+  serverless deploy; without `RESEND_API_KEY` + `NOTIFY_FROM_EMAIL` enquiries, contact messages
+  and feedback are stored but not emailed. `GET /api/health` reports every flag in
+  `lib/features.ts`. Every write API returns `delivered` and the forms show "saved" rather than
+  "sent" when it is false — keep success copy honest when adding a channel. Anything that emails
+  the support inbox goes through `lib/support-mail.ts`, which caps each flow (`contact`,
+  `feedback`) at 20 emails per rolling hour across all clients, reserving the slot atomically in
+  the `email_sends` table so it holds across instances; `/api/health` shows `mail.<kind>.capped`.
+  Skipped or failed sends leave `delivered = 0` on the `messages` / `feedback` row
+  (`GET /api/feedback?undelivered=1` lists them). `clientKey` keys the per-client limiter on
+  `x-real-ip` or the last hop of `x-forwarded-for`, never the client-supplied first hop.
+- The app is in a private beta with no public deployment. The footer carries the one beta notice
+  and `supportEmail()` (default `support@lscaturchio.xyz`; an invalid `SUPPORT_EMAIL` throws on
+  first render on purpose). `GET /api/feedback` is a 404 unless `FEEDBACK_REVIEW_TOKEN` is set;
+  the e2e web server sets a throwaway token in `playwright.config.ts`.
 - Next 16 writes `AGENTS.md`/`CLAUDE.md` into `website/` on dev start unless `agentRules: false`
   (already set in `next.config.ts`).
 - Zod v4: `z.email()` is a top-level schema, not `z.string().email()`.

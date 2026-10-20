@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getDogWithContact } from '@/lib/dogs';
-import { createMessage } from '@/lib/messages';
+import { createMessage, markMessageDelivered } from '@/lib/messages';
 import { forwardEnquiry } from '@/lib/notify';
+import { forwardContact } from '@/lib/support-mail';
 import { checkRateLimit, clientKey } from '@/lib/rate-limit';
 import { fieldErrors, messageSchema } from '@/lib/validation';
 
@@ -41,13 +42,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'That listing no longer exists.' }, { status: 404 });
   }
 
+  let saved;
   try {
-    await createMessage(parsed.data);
+    saved = await createMessage(parsed.data);
   } catch (error) {
     console.error('[api/messages] persist failed', error);
     return NextResponse.json({ error: 'Could not send your message. Please try again.' }, { status: 500 });
   }
 
-  const delivered = dog ? await forwardEnquiry(dog, parsed.data) : false;
+  // An enquiry goes to the reporter; anything else goes to the support inbox.
+  // `delivered` is the truth of what happened, and the form's success copy
+  // follows it rather than claiming the message was passed on.
+  const delivered = dog ? await forwardEnquiry(dog, parsed.data) : await forwardContact(parsed.data);
+  if (delivered) {
+    await markMessageDelivered(saved.id).catch((error) => console.error('[api/messages] mark delivered failed', error));
+  }
   return NextResponse.json({ ok: true, delivered }, { status: 201 });
 }

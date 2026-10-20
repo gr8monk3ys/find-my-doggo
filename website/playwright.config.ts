@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const PORT = 3100;
+// 3100 in CI and by default; E2E_PORT lets a local run sit beside other servers.
+const PORT = Number(process.env.E2E_PORT) || 3100;
 const baseURL = `http://127.0.0.1:${PORT}`;
 
 /**
@@ -40,6 +41,9 @@ export default defineConfig({
     env: {
       DATABASE_URL: 'file:./data/e2e.db',
       DISABLE_GEOCODING: '1',
+      // Lets the feedback e2e read back what it posted. A throwaway value, not
+      // a secret: it only ever guards the e2e database.
+      FEEDBACK_REVIEW_TOKEN: 'e2e-review-token',
     },
   },
 });
