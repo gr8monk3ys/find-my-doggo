@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0](https://github.com/gr8monk3ys/find-my-doggo/compare/v0.2.0...v0.3.0) (2026-10-20)
+
+
+### Features
+
+* **beta:** truthful surface, private-beta notice and a feedback channel ([#51](https://github.com/gr8monk3ys/find-my-doggo/issues/51)) ([4b47403](https://github.com/gr8monk3ys/find-my-doggo/commit/4b474031cf7e4bb68571b7080ba0e03311161064))
+
+
+### Bug Fixes
+
+* **support-mail:** count failed sends against the hourly cap ([#53](https://github.com/gr8monk3ys/find-my-doggo/issues/53)) ([65377dc](https://github.com/gr8monk3ys/find-my-doggo/commit/65377dc8a957731efb8f56c7be42ad2efe404db1))
+
 ## [0.2.0](https://github.com/gr8monk3ys/find-my-doggo/compare/v0.1.0...v0.2.0) (2026-10-20)
 
 
