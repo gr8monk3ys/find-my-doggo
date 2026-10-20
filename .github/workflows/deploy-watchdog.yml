@@ -1,0 +1,125 @@
+name: Deploy Watchdog
+
+# CI is honest about the code and blind to the outcome: a merge to master can
+# "land" green while the host never deploys it (the fleet saw exactly this in
+# September 2026 when Vercel's free-tier deploy cap was exhausted and a sister
+# project served a stale build for two days). This check asks GitHub's own
+# Deployments API whether the newest master commit has a successful Production
+# deployment attached, and fails loudly when it does not.
+#
+# Vercel records every deploy as a GitHub Deployment in the environment
+# "Production" (or "Preview") with `production_environment: true`, so the check
+# needs only the repository's own token: no Vercel credential to rotate.
+#
+# State of this repository: no Vercel project is connected yet. The only
+# Deployment records are six from March 2019, when the original app ran on
+# Heroku (environment "find-my-doggo", `production_environment: false`; that
+# app is long gone). Until the owner connects Vercel (docs/LAUNCH_CHECKLIST.md,
+# step 1) the verify job emits a warning and PASSES rather than paging anyone
+# daily about a known state. The moment a Vercel deployment has ever existed,
+# a missing or failed one becomes a hard failure, as it should.
+#
+# The second job runs only once the repository variable PRODUCTION_URL is set
+# (checklist step 11): website/scripts/smoke.mjs fetches the public pages,
+# robots.txt, the sitemap and /api/health, and fails on any non-2xx or a health
+# status other than "ok". Read-only; it never posts a form.
+
+on:
+  schedule:
+    - cron: '17 10 * * *' # daily; a scheduled failure emails the workflow's author
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: read
+
+jobs:
+  verify:
+    name: Latest master commit has a live Production deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check newest commit for a successful Production deployment
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const { data: repoInfo } = await github.rest.repos.get({ owner, repo });
+            const branch = repoInfo.default_branch;
+            const { data: head } = await github.rest.repos.getCommit({ owner, repo, ref: branch });
+            const short = head.sha.slice(0, 7);
+
+            const ageMinutes = (Date.now() - new Date(head.commit.committer.date)) / 60000;
+            core.info(`${branch} head: ${head.sha} (${Math.round(ageMinutes)} min old)`);
+
+            // A build takes a few minutes; give a fresh merge generous headroom
+            // before declaring the pipeline broken.
+            if (ageMinutes < 45) {
+              core.info('Commit is fresh; a deploy may still be in flight. Passing.');
+              return;
+            }
+
+            // Vercel's records, as opposed to the 2019 Heroku ones (environment
+            // "find-my-doggo", production_environment false).
+            const isVercel = (deployment) =>
+              deployment.production_environment === true ||
+              deployment.environment === 'Production' ||
+              deployment.environment === 'Preview';
+
+            const { data: forHead } = await github.rest.repos.listDeployments({
+              owner, repo, sha: head.sha, environment: 'Production', per_page: 5,
+            });
+
+            if (forHead.length === 0) {
+              // Newest 100 records: if Vercel is connected at all, one of them is Vercel's.
+              const { data: recent } = await github.rest.repos.listDeployments({ owner, repo, per_page: 100 });
+              const vercel = recent.filter(isVercel);
+              if (vercel.length === 0) {
+                core.warning('No Vercel project is connected; see docs/LAUNCH_CHECKLIST.md');
+                core.info(
+                  `${recent.length} deployment record(s) exist and none is from Vercel ` +
+                  `(the 2019 Heroku environment only). Passing until a project is connected.`
+                );
+                return;
+              }
+              core.setFailed(
+                `No Production deployment exists for ${branch}@${short}, although ${vercel.length} earlier ` +
+                'Vercel deployment(s) do: merges are landing and nothing is deploying. Check the Vercel ' +
+                'dashboard for a dropped deploy (free-tier 100/day cap) and the Git connection ' +
+                '(Project → Settings → Git).'
+              );
+              return;
+            }
+
+            const { data: statuses } = await github.rest.repos.listDeploymentStatuses({
+              owner, repo, deployment_id: forHead[0].id, per_page: 1,
+            });
+            const state = statuses[0]?.state ?? 'missing';
+            if (state !== 'success') {
+              core.setFailed(
+                `Production deployment for ${short} is '${state}', not 'success'. Inspect it in Vercel ` +
+                '(Deployments → the one for this commit → Build Logs).'
+              );
+              return;
+            }
+            core.info(`Production deployment ${forHead[0].id} for ${short} is live. All good.`);
+
+  smoke:
+    name: Read-only smoke against PRODUCTION_URL
+    # The repository variable is set in checklist step 11; until then there is
+    # nothing to fetch and the job is skipped, not failed.
+    if: vars.PRODUCTION_URL != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      # Plain fetch, no dependencies, no browser: `npm ci` is not needed.
+      - run: node scripts/smoke.mjs "$PRODUCTION_URL"
+        env:
+          PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
