@@ -1,4 +1,4 @@
-import { features, supportEmail } from './features';
+import { features } from './features';
 import type { DogWithContact } from './types';
 import type { MessageInput } from './validation';
 
@@ -12,7 +12,8 @@ export interface EmailMessage {
 
 /**
  * The one delivery seam: a raw Resend call, used for forwarding an enquiry to
- * a reporter, a contact message to the support inbox, and beta feedback.
+ * a reporter and, through lib/support-mail.ts (which adds a global hourly
+ * cap), for contact messages and beta feedback to the support inbox.
  *
  * With RESEND_API_KEY and NOTIFY_FROM_EMAIL set this sends for real. Without
  * them it logs and returns false, so local development and CI need no
@@ -64,15 +65,5 @@ export function forwardEnquiry(dog: DogWithContact, message: MessageInput): Prom
       `${message.name} (${message.email}) sent you a message about ${dog.name} (${dog.breed}), ` +
       `reported ${dog.status} near ${dog.location.address}.\n\n${message.message}\n\n` +
       'Reply to this email to reach them directly.',
-  });
-}
-
-/** A general contact-form message, to the support inbox. */
-export function forwardContact(message: MessageInput): Promise<boolean> {
-  return sendEmail({
-    to: supportEmail(),
-    replyTo: message.email,
-    subject: `Find My Doggo contact: ${message.subject}`,
-    text: `${message.name} (${message.email}) wrote through the contact form:\n\n${message.message}\n\nReply to this email to answer them.`,
   });
 }

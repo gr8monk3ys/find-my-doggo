@@ -70,9 +70,18 @@ const MIGRATIONS = [
      email      TEXT,
      user_agent TEXT,
      status     TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'seen', 'done')),
+     delivered  INTEGER NOT NULL DEFAULT 0,
      created_at TEXT NOT NULL
    )`,
   `CREATE INDEX IF NOT EXISTS idx_feedback_created ON feedback (created_at DESC)`,
+  // One row per attempted email to the support inbox; lib/support-mail.ts
+  // counts the last hour's rows to cap the sink across instances.
+  `CREATE TABLE IF NOT EXISTS email_sends (
+     id         TEXT PRIMARY KEY,
+     kind       TEXT NOT NULL,
+     created_at TEXT NOT NULL
+   )`,
+  `CREATE INDEX IF NOT EXISTS idx_email_sends_kind_created ON email_sends (kind, created_at DESC)`,
 ];
 
 /**

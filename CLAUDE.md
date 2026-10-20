@@ -78,7 +78,11 @@ bumps major; `Release-As: x.y.z` in a commit footer forces a version.
   serverless deploy; without `RESEND_API_KEY` + `NOTIFY_FROM_EMAIL` enquiries, contact messages
   and feedback are stored but not emailed. `GET /api/health` reports every flag in
   `lib/features.ts`. Every write API returns `delivered` and the forms show "saved" rather than
-  "sent" when it is false — keep success copy honest when adding a channel.
+  "sent" when it is false — keep success copy honest when adding a channel. Anything that emails
+  the support inbox goes through `lib/support-mail.ts`, which caps the sink at 20 attempts per
+  rolling hour across all clients (counted in the `email_sends` table, so it holds across
+  instances); `clientKey` keys the per-client limiter on `x-real-ip` or the last hop of
+  `x-forwarded-for`, never the client-supplied first hop.
 - The app is in a private beta with no public deployment. The footer carries the one beta notice
   and `supportEmail()` (default `support@lscaturchio.xyz`; an invalid `SUPPORT_EMAIL` throws on
   first render on purpose). `GET /api/feedback` is a 404 unless `FEEDBACK_REVIEW_TOKEN` is set;

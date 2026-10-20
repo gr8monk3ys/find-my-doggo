@@ -1,10 +1,9 @@
 import { timingSafeEqual } from 'node:crypto';
 import { NextResponse } from 'next/server';
-import { features, supportEmail } from '@/lib/features';
-import { createFeedback, listFeedback } from '@/lib/feedback';
-import { sendEmail } from '@/lib/notify';
+import { createFeedback, listFeedback, markFeedbackDelivered } from '@/lib/feedback';
 import { checkRateLimit, clientKey } from '@/lib/rate-limit';
 import { isSameOrigin } from '@/lib/same-origin';
+import { sendSupportEmail } from '@/lib/support-mail';
 import { feedbackSchema, fieldErrors } from '@/lib/validation';
 
 export const dynamic = 'force-dynamic';
@@ -53,16 +52,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Could not save your feedback. Please try again.' }, { status: 500 });
   }
 
-  const delivered = features().emailDelivery
-    ? await sendEmail({
-        to: supportEmail(),
-        replyTo: saved.email ?? undefined,
-        subject: `New beta feedback on ${saved.page}`,
-        text:
-          `Page: ${saved.page}\nFrom: ${saved.email ?? 'no email given'}\n` +
-          `Browser: ${saved.userAgent ?? 'unknown'}\nId: ${saved.id}\n\n${saved.message}`,
-      })
-    : false;
+  // Through the capped support sink: with no mailer, or past the hourly cap,
+  // the row stays and `delivered` is honestly false.
+  const delivered = await sendSupportEmail({
+    replyTo: saved.email ?? undefined,
+    subject: `New beta feedback on ${saved.page}`,
+    text:
+      `Page: ${saved.page}\nFrom: ${saved.email ?? 'no email given'}\n` +
+      `Browser: ${saved.userAgent ?? 'unknown'}\nId: ${saved.id}\n\n${saved.message}`,
+  });
+  if (delivered) {
+    await markFeedbackDelivered(saved.id).catch((error) => console.error('[api/feedback] mark delivered failed', error));
+  }
 
   return NextResponse.json({ ok: true, delivered }, { status: 201 });
 }

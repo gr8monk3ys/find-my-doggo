@@ -9,6 +9,8 @@ export interface Feedback {
   email: string | null;
   userAgent: string | null;
   status: FeedbackStatus;
+  /** Whether the note was also emailed to the support inbox. */
+  delivered: boolean;
   createdAt: string;
 }
 
@@ -29,6 +31,7 @@ function rowToFeedback(row: Row): Feedback {
     email: row.email == null ? null : String(row.email),
     userAgent: row.user_agent == null ? null : String(row.user_agent),
     status: String(row.status) as FeedbackStatus,
+    delivered: Number(row.delivered) === 1,
     createdAt: String(row.created_at),
   };
 }
@@ -46,7 +49,21 @@ export async function createFeedback(input: CreateFeedbackInput): Promise<Feedba
     args: [id, input.page, input.message, input.email ?? null, userAgent, createdAt],
   });
 
-  return { id, page: input.page, message: input.message, email: input.email ?? null, userAgent, status: 'new', createdAt };
+  return {
+    id,
+    page: input.page,
+    message: input.message,
+    email: input.email ?? null,
+    userAgent,
+    status: 'new',
+    delivered: false,
+    createdAt,
+  };
+}
+
+/** Records that the note reached the support inbox. */
+export async function markFeedbackDelivered(id: string): Promise<void> {
+  await getClient().execute({ sql: `UPDATE feedback SET delivered = 1 WHERE id = ?`, args: [id] });
 }
 
 /** Newest first. For reviewers through GET /api/feedback; there is no admin UI. */
@@ -54,7 +71,7 @@ export async function listFeedback(limit = 100): Promise<Feedback[]> {
   await ensureSchema();
   const bounded = Math.min(Math.max(limit, 1), 500);
   const result = await getClient().execute({
-    sql: `SELECT id, page, message, email, user_agent, status, created_at
+    sql: `SELECT id, page, message, email, user_agent, status, delivered, created_at
           FROM feedback ORDER BY created_at DESC, rowid DESC LIMIT ?`,
     args: [bounded],
   });

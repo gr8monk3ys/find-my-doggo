@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getDogWithContact } from '@/lib/dogs';
 import { createMessage } from '@/lib/messages';
-import { forwardContact, forwardEnquiry } from '@/lib/notify';
+import { forwardEnquiry } from '@/lib/notify';
+import { forwardContact } from '@/lib/support-mail';
 import { checkRateLimit, clientKey } from '@/lib/rate-limit';
 import { fieldErrors, messageSchema } from '@/lib/validation';
 

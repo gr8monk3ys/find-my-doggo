@@ -32,15 +32,35 @@ describe('checkRateLimit', () => {
 });
 
 describe('clientKey', () => {
-  it('uses the first hop of x-forwarded-for', () => {
+  it('prefers x-real-ip, which the platform sets, over anything in x-forwarded-for', () => {
     const request = new Request('https://example.com', {
-      headers: { 'x-forwarded-for': '203.0.113.7, 10.0.0.1' },
+      headers: { 'x-forwarded-for': 'a, b, c', 'x-real-ip': '198.51.100.4' },
     });
-    expect(clientKey(request)).toBe('203.0.113.7');
+    expect(clientKey(request)).toBe('198.51.100.4');
   });
 
-  it('falls back to x-real-ip, then to a shared bucket', () => {
-    expect(clientKey(new Request('https://e.com', { headers: { 'x-real-ip': '198.51.100.4' } }))).toBe('198.51.100.4');
+  it('uses the LAST hop of x-forwarded-for, the one the proxy appended', () => {
+    const request = new Request('https://example.com', {
+      headers: { 'x-forwarded-for': 'a, b, c' },
+    });
+    expect(clientKey(request)).toBe('c');
+    expect(clientKey(new Request('https://e.com', { headers: { 'x-forwarded-for': ' 203.0.113.7 , 10.0.0.1 ' } }))).toBe(
+      '10.0.0.1',
+    );
+  });
+
+  it('falls back to a shared bucket with neither header', () => {
     expect(clientKey(new Request('https://e.com'))).toBe('unknown');
+    expect(clientKey(new Request('https://e.com', { headers: { 'x-forwarded-for': ' , ' } }))).toBe('unknown');
+  });
+
+  it('cannot be evaded by rotating the client-supplied first hop', () => {
+    resetRateLimitsForTests();
+    const keyFor = (i: number) =>
+      clientKey(new Request('https://e.com', { headers: { 'x-forwarded-for': `10.0.0.${i}, 203.0.113.7` } }));
+    for (let i = 0; i < 3; i += 1) {
+      expect(checkRateLimit(keyFor(i), 3, 60_000).ok).toBe(true);
+    }
+    expect(checkRateLimit(keyFor(99), 3, 60_000).ok).toBe(false);
   });
 });

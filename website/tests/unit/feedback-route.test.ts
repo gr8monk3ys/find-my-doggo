@@ -12,6 +12,7 @@ delete process.env.NOTIFY_FROM_EMAIL;
 
 const { getClient, ensureSchema, resetClientForTests } = await import('@/lib/db');
 const { resetRateLimitsForTests } = await import('@/lib/rate-limit');
+const { SUPPORT_EMAILS_PER_HOUR, resetSupportMailForTests } = await import('@/lib/support-mail');
 const { GET, POST } = await import('@/app/api/feedback/route');
 
 const ORIGIN = 'http://localhost:3103';
@@ -26,7 +27,7 @@ function post(body: unknown, headers: Record<string, string> = {}) {
         host: 'localhost:3103',
         origin: ORIGIN,
         'sec-fetch-site': 'same-origin',
-        'x-forwarded-for': '203.0.113.9',
+        'x-real-ip': '203.0.113.9',
         'user-agent': 'vitest',
         ...headers,
       },
@@ -41,8 +42,10 @@ function get(headers: Record<string, string> = {}) {
 
 beforeEach(async () => {
   resetRateLimitsForTests();
+  resetSupportMailForTests();
   await ensureSchema();
   await getClient().execute('DELETE FROM feedback');
+  await getClient().execute('DELETE FROM email_sends');
 });
 
 afterEach(() => {
@@ -63,7 +66,7 @@ describe('POST /api/feedback', () => {
     expect(response.status).toBe(201);
     expect(await response.json()).toEqual({ ok: true, delivered: false });
 
-    const rows = await getClient().execute('SELECT page, message, email, user_agent, status FROM feedback');
+    const rows = await getClient().execute('SELECT page, message, email, user_agent, status, delivered FROM feedback');
     expect(rows.rows).toHaveLength(1);
     expect(rows.rows[0]).toMatchObject({
       page: '/contact',
@@ -71,6 +74,7 @@ describe('POST /api/feedback', () => {
       email: 'tester@example.com',
       user_agent: 'vitest',
       status: 'new',
+      delivered: 0,
     });
   });
 
@@ -136,6 +140,34 @@ describe('POST /api/feedback', () => {
       subject: 'New beta feedback on /contact',
     });
     expect(sent.text).toContain(VALID.message);
+
+    const rows = await getClient().execute('SELECT delivered FROM feedback');
+    expect(rows.rows[0].delivered).toBe(1);
+  });
+
+  it('stops emailing the support inbox after the global hourly cap, but keeps storing', async () => {
+    process.env.RESEND_API_KEY = 're_test';
+    process.env.NOTIFY_FROM_EMAIL = 'noreply@example.com';
+    const fetchMock = vi.fn(async () => new Response('{}', { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    // Distinct clients, so the per-client limiter is not what stops this.
+    for (let i = 0; i < SUPPORT_EMAILS_PER_HOUR; i += 1) {
+      const response = await post(VALID, { 'x-real-ip': `203.0.113.${i + 10}` });
+      expect(await response.json()).toEqual({ ok: true, delivered: true });
+    }
+    expect(fetchMock).toHaveBeenCalledTimes(SUPPORT_EMAILS_PER_HOUR);
+
+    const capped = await post(VALID, { 'x-real-ip': '203.0.113.200' });
+    expect(capped.status).toBe(201);
+    expect(await capped.json()).toEqual({ ok: true, delivered: false });
+    expect(fetchMock).toHaveBeenCalledTimes(SUPPORT_EMAILS_PER_HOUR);
+
+    const rows = await getClient().execute('SELECT delivered FROM feedback ORDER BY rowid');
+    expect(rows.rows).toHaveLength(SUPPORT_EMAILS_PER_HOUR + 1);
+    expect(rows.rows.at(-1)?.delivered).toBe(0);
+    expect(console.warn).toHaveBeenCalledTimes(1);
   });
 });
 

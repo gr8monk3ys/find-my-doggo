@@ -1,12 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { forwardContact, forwardEnquiry, sendEmail } from '@/lib/notify';
-
-const MESSAGE = {
-  name: 'Sam Rivera',
-  email: 'sam@example.com',
-  subject: 'Question about takedowns',
-  message: 'How do I remove a listing I posted last week?',
-};
+import { forwardEnquiry, sendEmail } from '@/lib/notify';
 
 const DOG = {
   id: 'dog-1',
@@ -25,7 +18,6 @@ const DOG = {
 beforeEach(() => {
   delete process.env.RESEND_API_KEY;
   delete process.env.NOTIFY_FROM_EMAIL;
-  delete process.env.SUPPORT_EMAIL;
 });
 
 afterEach(() => {
@@ -89,28 +81,14 @@ describe('sendEmail', () => {
 describe('forwardEnquiry', () => {
   it('addresses the reporter and lets them reply to the sender', async () => {
     const fetchMock = configureMailer();
-    expect(await forwardEnquiry(DOG, { ...MESSAGE, dogId: DOG.id })).toBe(true);
+    const message = {
+      name: 'Sam Rivera',
+      email: 'sam@example.com',
+      subject: 'Seen near the park',
+      message: 'I think I saw this husky near the park entrance.',
+      dogId: DOG.id,
+    };
+    expect(await forwardEnquiry(DOG, message)).toBe(true);
     expect(sentBody(fetchMock)).toMatchObject({ to: 'owner@example.com', reply_to: 'sam@example.com' });
-  });
-});
-
-describe('forwardContact', () => {
-  it('addresses the support inbox and lets it reply to the sender', async () => {
-    const fetchMock = configureMailer();
-    expect(await forwardContact(MESSAGE)).toBe(true);
-    const body = sentBody(fetchMock);
-    expect(body).toMatchObject({
-      to: 'support@lscaturchio.xyz',
-      reply_to: 'sam@example.com',
-      subject: 'Find My Doggo contact: Question about takedowns',
-    });
-    expect(body.text).toContain(MESSAGE.message);
-  });
-
-  it('follows SUPPORT_EMAIL when it is set', async () => {
-    const fetchMock = configureMailer();
-    process.env.SUPPORT_EMAIL = 'help@example.com';
-    await forwardContact(MESSAGE);
-    expect(sentBody(fetchMock).to).toBe('help@example.com');
   });
 });
