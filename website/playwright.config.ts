@@ -1,8 +1,28 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices, type Project } from '@playwright/test';
 
 // 3100 in CI and by default; E2E_PORT lets a local run sit beside other servers.
 const PORT = Number(process.env.E2E_PORT) || 3100;
 const baseURL = `http://127.0.0.1:${PORT}`;
+
+/**
+ * CI runs Playwright's own Chromium (`npx playwright install chromium`). On a
+ * developer machine where that download is unwanted or impossible, either
+ *   PLAYWRIGHT_USE_SYSTEM_CHROME=1   use the installed Google Chrome (`channel: 'chrome'`)
+ *   PLAYWRIGHT_CHROMIUM_PATH=<exe>   point the chromium project at any Chromium binary
+ * The chrome project exists only when asked for, so CI's project list is unchanged.
+ */
+const chromium: Project = {
+  name: 'chromium',
+  use: {
+    ...devices['Desktop Chrome'],
+    launchOptions: process.env.PLAYWRIGHT_CHROMIUM_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH } : {},
+  },
+};
+
+const chrome: Project = {
+  name: 'chrome',
+  use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+};
 
 /**
  * Runs against a production build on a throwaway database, so an e2e run never
@@ -20,19 +40,7 @@ export default defineConfig({
     baseURL,
     trace: 'on-first-retry',
   },
-  projects: [
-    {
-      name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-        // Escape hatch for sandboxes that ship a Chromium build Playwright did
-        // not download itself. Unset everywhere else, including CI.
-        launchOptions: process.env.PLAYWRIGHT_CHROMIUM_PATH
-          ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH }
-          : {},
-      },
-    },
-  ],
+  projects: process.env.PLAYWRIGHT_USE_SYSTEM_CHROME === '1' ? [chrome] : [chromium],
   webServer: {
     command: `npx next start --port ${PORT}`,
     url: `${baseURL}/api/health`,
