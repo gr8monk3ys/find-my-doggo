@@ -54,7 +54,7 @@ export async function POST(request: Request) {
 
   // Through the capped support sink: with no mailer, or past the hourly cap,
   // the row stays and `delivered` is honestly false.
-  const delivered = await sendSupportEmail({
+  const delivered = await sendSupportEmail('feedback', {
     replyTo: saved.email ?? undefined,
     subject: `New beta feedback on ${saved.page}`,
     text:
@@ -78,7 +78,8 @@ function tokenMatches(presented: string, expected: string): boolean {
 /**
  * The reviewer's view: the newest notes, behind FEEDBACK_REVIEW_TOKEN. With
  * the variable unset the route does not exist for anyone (404), so a public
- * deployment that has not opted in exposes nothing.
+ * deployment that has not opted in exposes nothing. `?undelivered=1` narrows
+ * to notes that were stored but never emailed, so they can be re-sent by hand.
  */
 export async function GET(request: Request) {
   const expected = process.env.FEEDBACK_REVIEW_TOKEN;
@@ -92,8 +93,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized.' }, { status: 401, headers: { 'WWW-Authenticate': 'Bearer' } });
   }
 
+  const undelivered = new URL(request.url).searchParams.get('undelivered') === '1';
   try {
-    const feedback = await listFeedback(REVIEW_LIMIT);
+    const feedback = await listFeedback({ limit: REVIEW_LIMIT, undelivered });
     return NextResponse.json({ feedback });
   } catch (error) {
     console.error('[api/feedback] list failed', error);

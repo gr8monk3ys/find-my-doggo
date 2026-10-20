@@ -60,6 +60,7 @@ const MIGRATIONS = [
      email      TEXT NOT NULL,
      subject    TEXT NOT NULL,
      body       TEXT NOT NULL,
+     delivered  INTEGER NOT NULL DEFAULT 0,
      created_at TEXT NOT NULL
    )`,
   `CREATE INDEX IF NOT EXISTS idx_messages_dog ON messages (dog_id)`,
@@ -85,6 +86,24 @@ const MIGRATIONS = [
 ];
 
 /**
+ * Columns added after a table first shipped. `CREATE TABLE IF NOT EXISTS`
+ * leaves an existing table alone, and SQLite has no `ADD COLUMN IF NOT
+ * EXISTS`, so each is applied only when `PRAGMA table_info` says it is
+ * missing. The CREATE statements above carry the same columns for fresh
+ * databases.
+ */
+const COLUMN_ADDITIONS = [{ table: 'messages', column: 'delivered', definition: 'INTEGER NOT NULL DEFAULT 0' }];
+
+async function addMissingColumns(): Promise<void> {
+  const db = getClient();
+  for (const { table, column, definition } of COLUMN_ADDITIONS) {
+    const info = await db.execute(`PRAGMA table_info(${table})`);
+    if (info.rows.some((row) => row.name === column)) continue;
+    await db.execute(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  }
+}
+
+/**
  * Idempotent, so it is safe to call on every request. The promise is cached so
  * concurrent requests on a cold serverless instance only migrate once.
  */
@@ -92,7 +111,7 @@ export function ensureSchema(): Promise<void> {
   if (!schemaReady) {
     schemaReady = getClient()
       .batch(MIGRATIONS, 'write')
-      .then(() => undefined)
+      .then(addMissingColumns)
       .catch((err) => {
         // Let the next request retry rather than caching a failed migration.
         schemaReady = undefined;

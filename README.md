@@ -119,7 +119,11 @@ These are deliberate gaps, not bugs:
   once a mailer is configured.
 - **Feedback has no inbox UI.** Notes land in the `feedback` table; reviewers read
   them with `GET /api/feedback` and `Authorization: Bearer $FEEDBACK_REVIEW_TOKEN`
-  (the route is a 404 until that variable is set).
+  (the route is a 404 until that variable is set); `?undelivered=1` lists the ones
+  that were stored but not emailed.
+- **Support mail is capped.** The contact form and the feedback dialog each send at
+  most 20 emails an hour in total; past that, messages are still stored and the UI
+  says so. `GET /api/health` reports `mail.contact` / `mail.feedback`.
 - **No moderation.** Submissions are validated but not reviewed. A public
   deployment needs a moderation queue and abuse reporting.
 - **Rate limiting is per-instance.** The in-memory limiter in `lib/rate-limit.ts`

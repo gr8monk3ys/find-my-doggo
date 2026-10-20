@@ -66,13 +66,20 @@ export async function markFeedbackDelivered(id: string): Promise<void> {
   await getClient().execute({ sql: `UPDATE feedback SET delivered = 1 WHERE id = ?`, args: [id] });
 }
 
+export interface ListFeedbackOptions {
+  limit?: number;
+  /** Only rows whose email was skipped (cap, no mailer) or failed, for re-sending later. */
+  undelivered?: boolean;
+}
+
 /** Newest first. For reviewers through GET /api/feedback; there is no admin UI. */
-export async function listFeedback(limit = 100): Promise<Feedback[]> {
+export async function listFeedback({ limit = 100, undelivered = false }: ListFeedbackOptions = {}): Promise<Feedback[]> {
   await ensureSchema();
   const bounded = Math.min(Math.max(limit, 1), 500);
   const result = await getClient().execute({
     sql: `SELECT id, page, message, email, user_agent, status, delivered, created_at
-          FROM feedback ORDER BY created_at DESC, rowid DESC LIMIT ?`,
+          FROM feedback ${undelivered ? 'WHERE delivered = 0' : ''}
+          ORDER BY created_at DESC, rowid DESC LIMIT ?`,
     args: [bounded],
   });
   return result.rows.map((row) => rowToFeedback(row as Row));

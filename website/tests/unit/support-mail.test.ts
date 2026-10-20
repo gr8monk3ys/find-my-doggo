@@ -8,9 +8,8 @@ const dir = mkdtempSync(path.join(tmpdir(), 'fmd-support-'));
 process.env.DATABASE_URL = `file:${path.join(dir, 'test.db')}`;
 
 const { getClient, ensureSchema, resetClientForTests } = await import('@/lib/db');
-const { SUPPORT_EMAILS_PER_HOUR, forwardContact, resetSupportMailForTests, sendSupportEmail } = await import(
-  '@/lib/support-mail'
-);
+const { SUPPORT_EMAILS_PER_HOUR, forwardContact, resetSupportMailForTests, sendSupportEmail, supportMailStats } =
+  await import('@/lib/support-mail');
 
 const MESSAGE = {
   name: 'Sam Rivera',
@@ -32,6 +31,17 @@ function configureMailer() {
 function sentBody(fetchMock: ReturnType<typeof vi.fn>, call = 0) {
   const [, init] = fetchMock.mock.calls[call] as unknown as [string, RequestInit];
   return JSON.parse(String(init.body));
+}
+
+async function countKind(kind: string): Promise<number> {
+  const { rows } = await getClient().execute({ sql: 'SELECT COUNT(*) AS n FROM email_sends WHERE kind = ?', args: [kind] });
+  return Number(rows[0].n);
+}
+
+async function fillWindow(kind: 'contact' | 'feedback') {
+  for (let i = 0; i < SUPPORT_EMAILS_PER_HOUR; i += 1) {
+    expect(await sendSupportEmail(kind, NOTE)).toBe(true);
+  }
 }
 
 beforeEach(async () => {
@@ -64,6 +74,7 @@ describe('forwardContact', () => {
       subject: 'Find My Doggo contact: Question about takedowns',
     });
     expect(body.text).toContain(MESSAGE.message);
+    expect(await countKind('contact')).toBe(1);
   });
 
   it('follows SUPPORT_EMAIL when it is set', async () => {
@@ -76,34 +87,57 @@ describe('forwardContact', () => {
   it('reports false and records nothing when no mailer is configured', async () => {
     vi.spyOn(console, 'info').mockImplementation(() => {});
     expect(await forwardContact(MESSAGE)).toBe(false);
-    expect((await getClient().execute('SELECT COUNT(*) AS n FROM email_sends')).rows[0].n).toBe(0);
+    expect(await countKind('contact')).toBe(0);
   });
 });
 
 describe('sendSupportEmail cap', () => {
-  it('counts attempts in the database and stops at the hourly cap', async () => {
+  it('stops at the hourly cap for one flow and logs once', async () => {
     const fetchMock = configureMailer();
     vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    for (let i = 0; i < SUPPORT_EMAILS_PER_HOUR; i += 1) {
-      expect(await sendSupportEmail(NOTE)).toBe(true);
-    }
-    expect(await sendSupportEmail(NOTE)).toBe(false);
-    expect(await sendSupportEmail(NOTE)).toBe(false);
+    await fillWindow('feedback');
+    expect(await sendSupportEmail('feedback', NOTE)).toBe(false);
+    expect(await sendSupportEmail('feedback', NOTE)).toBe(false);
     expect(fetchMock).toHaveBeenCalledTimes(SUPPORT_EMAILS_PER_HOUR);
-    expect((await getClient().execute('SELECT COUNT(*) AS n FROM email_sends')).rows[0].n).toBe(
-      SUPPORT_EMAILS_PER_HOUR,
-    );
-    // The cap is logged once, not on every refused send.
+    expect(await countKind('feedback')).toBe(SUPPORT_EMAILS_PER_HOUR);
     expect(console.warn).toHaveBeenCalledTimes(1);
   });
 
-  it('counts a rejected send as an attempt too', async () => {
+  it('keeps contact mail flowing while feedback is capped, and vice versa', async () => {
+    const fetchMock = configureMailer();
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    await fillWindow('feedback');
+    expect(await sendSupportEmail('feedback', NOTE)).toBe(false);
+    expect(await forwardContact(MESSAGE)).toBe(true);
+    expect(sentBody(fetchMock, SUPPORT_EMAILS_PER_HOUR).subject).toMatch(/^Find My Doggo contact:/);
+
+    await getClient().execute('DELETE FROM email_sends');
+    await fillWindow('contact');
+    expect(await sendSupportEmail('contact', NOTE)).toBe(false);
+    expect(await sendSupportEmail('feedback', NOTE)).toBe(true);
+  });
+
+  it('reserves slots atomically: of 30 concurrent sends exactly the cap go through', async () => {
+    const fetchMock = configureMailer();
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    const results = await Promise.all(Array.from({ length: 30 }, () => sendSupportEmail('feedback', NOTE)));
+    expect(results.filter(Boolean)).toHaveLength(SUPPORT_EMAILS_PER_HOUR);
+    expect(fetchMock).toHaveBeenCalledTimes(SUPPORT_EMAILS_PER_HOUR);
+    expect(await countKind('feedback')).toBe(SUPPORT_EMAILS_PER_HOUR);
+    // The other flow is untouched.
+    expect(await countKind('contact')).toBe(0);
+    expect(await sendSupportEmail('contact', NOTE)).toBe(true);
+  });
+
+  it('releases the reservation when the mailer fails, so a transient error does not burn a slot', async () => {
     configureMailer();
     vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.stubGlobal('fetch', vi.fn(async () => new Response('nope', { status: 422 })));
-    expect(await sendSupportEmail(NOTE)).toBe(false);
-    expect((await getClient().execute('SELECT COUNT(*) AS n FROM email_sends')).rows[0].n).toBe(1);
+    expect(await sendSupportEmail('contact', NOTE)).toBe(false);
+    expect(await countKind('contact')).toBe(0);
   });
 
   it('ignores attempts older than an hour', async () => {
@@ -111,11 +145,32 @@ describe('sendSupportEmail cap', () => {
     const stale = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
     for (let i = 0; i < SUPPORT_EMAILS_PER_HOUR; i += 1) {
       await getClient().execute({
-        sql: `INSERT INTO email_sends (id, kind, created_at) VALUES (?, 'support', ?)`,
+        sql: `INSERT INTO email_sends (id, kind, created_at) VALUES (?, 'feedback', ?)`,
         args: [`stale-${i}`, stale],
       });
     }
-    expect(await sendSupportEmail(NOTE)).toBe(true);
+    expect(await sendSupportEmail('feedback', NOTE)).toBe(true);
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('supportMailStats', () => {
+  it('reports each flow separately and flags a full window', async () => {
+    configureMailer();
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    expect(await supportMailStats()).toEqual({
+      contact: { sentLastHour: 0, capPerHour: SUPPORT_EMAILS_PER_HOUR, capped: false },
+      feedback: { sentLastHour: 0, capPerHour: SUPPORT_EMAILS_PER_HOUR, capped: false },
+    });
+
+    await sendSupportEmail('contact', NOTE);
+    await fillWindow('feedback');
+    const stats = await supportMailStats();
+    expect(stats.contact).toEqual({ sentLastHour: 1, capPerHour: SUPPORT_EMAILS_PER_HOUR, capped: false });
+    expect(stats.feedback).toEqual({
+      sentLastHour: SUPPORT_EMAILS_PER_HOUR,
+      capPerHour: SUPPORT_EMAILS_PER_HOUR,
+      capped: true,
+    });
   });
 });

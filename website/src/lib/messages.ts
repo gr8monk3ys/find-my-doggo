@@ -3,6 +3,8 @@ import type { MessageInput } from './validation';
 
 export interface StoredMessage extends MessageInput {
   id: string;
+  /** Whether the message was emailed on (to the reporter, or to the support inbox). */
+  delivered: boolean;
   createdAt: string;
 }
 
@@ -17,5 +19,10 @@ export async function createMessage(input: MessageInput): Promise<StoredMessage>
     args: [id, input.dogId ?? null, input.name, input.email, input.subject, input.message, createdAt],
   });
 
-  return { ...input, id, createdAt };
+  return { ...input, id, delivered: false, createdAt };
+}
+
+/** Records that the message was emailed on; rows left at 0 can be re-sent later. */
+export async function markMessageDelivered(id: string): Promise<void> {
+  await getClient().execute({ sql: `UPDATE messages SET delivered = 1 WHERE id = ?`, args: [id] });
 }

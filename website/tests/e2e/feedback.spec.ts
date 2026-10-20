@@ -72,5 +72,9 @@ test('the health endpoint reports every feature flag and the database latency', 
     },
   });
   expect(typeof body.databaseLatencyMs).toBe('number');
+  expect(body.mail).toMatchObject({
+    contact: { sentLastHour: 0, capPerHour: 20, capped: false },
+    feedback: { sentLastHour: 0, capPerHour: 20, capped: false },
+  });
   expect(body.version).toMatch(/^\d+\.\d+\.\d+/);
 });
