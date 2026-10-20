@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Field, Input, Textarea } from '@/components/ui/field';
 
 interface MessageFormProps {
   /** When set, the message is forwarded to whoever reported that dog. */
@@ -22,9 +24,6 @@ interface FormState {
 
 const EMPTY: FormState = { name: '', email: '', subject: '', message: '' };
 
-const inputClass =
-  'w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a2e] focus:ring-2 focus:ring-orange-500 focus:border-transparent';
-
 export default function MessageForm({
   dogId,
   heading,
@@ -42,6 +41,10 @@ export default function MessageForm({
 
   const update = (key: keyof FormState) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((prev) => ({ ...prev, [key]: event.target.value }));
+
+  /** aria-invalid / aria-describedby for a control whose error line Field renders. */
+  const describe = (key: keyof FormState) =>
+    fieldErrors[key] ? { 'aria-invalid': true as const, 'aria-describedby': `message-${key}-error` } : {};
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -73,105 +76,87 @@ export default function MessageForm({
 
   if (sent) {
     return (
-      <div className="rounded-xl border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950/40 p-6">
-        <h2 className="text-xl font-bold mb-2">{successTitle}</h2>
-        <p className="text-gray-700 dark:text-gray-300 mb-4">{successBody}</p>
-        <button
-          type="button"
-          onClick={() => setSent(false)}
-          className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-6 rounded-lg transition-colors"
-        >
+      <div>
+        <p className="label-mono text-success">Sent</p>
+        <h2 className="text-card-title mt-2">{successTitle}</h2>
+        <p className="mt-2 text-sm text-muted-foreground">{successBody}</p>
+        <Button type="button" variant="secondary" className="mt-6" onClick={() => setSent(false)}>
           Send another message
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-4">
+    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
       <div>
-        <h2 className="text-xl font-bold">{heading}</h2>
-        {intro && <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{intro}</p>}
+        <p className="label-mono">Get in touch</p>
+        <h2 className="text-card-title mt-2">{heading}</h2>
+        {intro && <p className="mt-2 text-sm text-muted-foreground">{intro}</p>}
       </div>
 
       {formError && (
-        <p role="alert" className="rounded-lg bg-red-50 dark:bg-red-950/40 px-4 py-3 text-red-700 dark:text-red-300">
+        <p
+          role="alert"
+          className="rounded-sm border border-destructive/30 bg-destructive-muted px-4 py-3 text-sm text-destructive"
+        >
           {formError}
         </p>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Field id="message-name" label="Your name" error={fieldErrors.name}>
-          <input id="message-name" type="text" value={form.name} onChange={update('name')} className={inputClass} required />
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Field label="Your name" htmlFor="message-name" error={fieldErrors.name} errorId="message-name-error">
+          <Input
+            id="message-name"
+            type="text"
+            autoComplete="name"
+            value={form.name}
+            onChange={update('name')}
+            required
+            {...describe('name')}
+          />
         </Field>
-        <Field id="message-email" label="Your email" error={fieldErrors.email}>
-          <input
+        <Field label="Your email" htmlFor="message-email" error={fieldErrors.email} errorId="message-email-error">
+          <Input
             id="message-email"
             type="email"
+            autoComplete="email"
             value={form.email}
             onChange={update('email')}
             placeholder="you@example.com"
-            className={inputClass}
             required
+            {...describe('email')}
           />
         </Field>
       </div>
 
-      <Field id="message-subject" label="Subject" error={fieldErrors.subject}>
-        <input
+      <Field label="Subject" htmlFor="message-subject" error={fieldErrors.subject} errorId="message-subject-error">
+        <Input
           id="message-subject"
           type="text"
           value={form.subject}
           onChange={update('subject')}
-          className={inputClass}
           required
+          {...describe('subject')}
         />
       </Field>
 
-      <Field id="message-body" label="Message" error={fieldErrors.message}>
-        <textarea
+      <Field label="Message" htmlFor="message-body" error={fieldErrors.message} errorId="message-message-error">
+        <Textarea
           id="message-body"
           rows={5}
           value={form.message}
           onChange={update('message')}
-          className={inputClass}
           required
+          {...describe('message')}
         />
       </Field>
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-lg transition-colors"
-      >
-        {isSubmitting ? 'Sending…' : submitLabel}
-      </button>
+      <div>
+        <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
+          {isSubmitting ? 'Sending…' : submitLabel}
+        </Button>
+      </div>
     </form>
-  );
-}
-
-function Field({
-  id,
-  label,
-  error,
-  children,
-}: {
-  id: string;
-  label: string;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <label htmlFor={id} className="block text-sm font-medium mb-2">
-        {label}
-      </label>
-      {children}
-      {error && (
-        <p role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">
-          {error}
-        </p>
-      )}
-    </div>
   );
 }

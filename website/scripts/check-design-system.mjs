@@ -15,9 +15,12 @@
  * Exit 0 when clean, 1 when any rule fires.
  *
  * Two kinds of rule live here. Hard rules fail on the first hit. The legacy
- * ratchet counts names left over from the orange identity (the pre-notebook
- * look) and fails only if a count GROWS; the pages PR takes each entry to
- * zero, deletes it, and the matching hard rule takes over.
+ * ratchet counts retired names and fails only if a count GROWS; it is how a
+ * rule is introduced to a codebase that does not yet obey it. The notebook
+ * landed in two PRs: the first recorded the orange identity's leftovers as
+ * baselines, the second took every entry to zero and deleted it, so LEGACY is
+ * empty today and every rule below is hard. Keep the mechanism: the next
+ * retired name goes in LEGACY with its count, and leaves when it reaches zero.
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
@@ -32,22 +35,27 @@ const GLOBALS_CSS = join(SRC, 'app', 'globals.css');
 /**
  * Every Tailwind hue is off-system. DESIGN.md → Colors → The One Pen Rule:
  * colour goes through the tokens, and status goes through text-destructive /
- * text-success / text-info — never `red-500`. The families the legacy pages
- * still use (gray, orange, red, green, blue) are ratcheted in LEGACY below
- * and join this list when their count reaches zero.
+ * text-success / text-info — never `red-500`. Gray, orange, red, green and
+ * blue were ratcheted while the orange pages were still standing and joined
+ * this list when the pages PR took their counts to zero.
  */
 const PALETTE_FAMILIES = [
   'slate',
+  'gray',
   'zinc',
   'neutral',
   'stone',
+  'red',
+  'orange',
   'amber',
   'yellow',
   'lime',
+  'green',
   'emerald',
   'teal',
   'cyan',
   'sky',
+  'blue',
   'indigo',
   'violet',
   'purple',
@@ -88,63 +96,35 @@ const ALLOWLIST = [
 ];
 
 /**
- * The legacy ratchet. Each pattern is a retired name; `baseline` is how many
- * times it appeared when the notebook landed (the foundation PR). A count
- * above baseline fails. Lower the baseline in the same PR that removes call
- * sites, and delete the entry at zero — at which point the hard rule named in
- * `then` (if any) starts running. Hits inside an ALLOWLIST entry for the
- * `then` rule (the header's shadow and glass) are not counted.
+ * The legacy ratchet. Each entry is a retired name; `baseline` is how many
+ * times it appeared when the rule was introduced. A count above baseline
+ * fails. Lower the baseline in the same PR that removes call sites, and
+ * delete the entry at zero — at which point the hard rule named in `then`
+ * (if any) starts running. Hits inside an ALLOWLIST entry for the `then`
+ * rule are not counted.
+ *
+ *   { name: 'retired-name', pattern: /…/g, baseline: N, then: 'rule' }
+ *
+ * Empty since the pages PR (2026-10-13). The foundation PR had recorded
+ * brand-orange 57, neutral-grey 95, status-hue 40, raw-white 24, hex-literal
+ * 12, shadow 6, gradient-utility 1, emoji 8 and status-pill 3; the pages PR
+ * took each to zero and the hard rules palette, raw-white, hex-literal,
+ * flat-paper, no-gradient, no-emoji and status-pill now cover them.
  */
-const LEGACY = [
-  // Baselines counted on 2026-10-13, the day the notebook tokens, fonts,
-  // primitives and shell landed. Everything left lives in the page
-  // compositions (home, /dogs, /dogs/[id], /map, /report, /contact,
-  // not-found, error, DogCard, DogFilters, MessageForm, StatusBadge, the map
-  // canvas), which the pages PR restyles.
-  {
-    name: 'brand-orange',
-    pattern: new RegExp(`\\b(?:${PALETTE_PREFIXES})-orange-[0-9]{2,3}\\b`, 'g'),
-    baseline: 57,
-  },
-  {
-    name: 'neutral-grey',
-    pattern: new RegExp(`\\b(?:${PALETTE_PREFIXES})-gray-[0-9]{2,3}\\b`, 'g'),
-    baseline: 95,
-  },
-  {
-    name: 'status-hue',
-    pattern: new RegExp(`\\b(?:${PALETTE_PREFIXES})-(?:red|green|blue)-[0-9]{2,3}\\b`, 'g'),
-    baseline: 40,
-  },
-  {
-    name: 'raw-white',
-    pattern: new RegExp(`\\b(?:${PALETTE_PREFIXES})-(?:white|black)\\b`, 'g'),
-    baseline: 24,
-  },
-  { name: 'hex-literal', pattern: /\[#[0-9a-fA-F]{3,8}\]/g, baseline: 12 },
-  {
-    name: 'shadow',
-    pattern: /(?<![\w-])(?:[\w-]+:)*shadow-(?:2xs|xs|sm|md|lg|xl|2xl|\[)/g,
-    baseline: 6,
-    then: 'flat-paper',
-  },
-  {
-    name: 'gradient-utility',
-    pattern: /(?<![\w-])(?:[\w-]+:)*(?:bg-gradient-to-[a-z]+|bg-linear-[\w-]+|bg-radial|bg-conic)(?![\w-])/g,
-    baseline: 1,
-    then: 'no-gradient',
-  },
-  // Emoji as icons (the dog, the camera, the pin, the envelope). The notebook
-  // uses the mark, wall labels and honest empty states instead.
-  { name: 'emoji', pattern: /\p{Extended_Pictographic}/gu, baseline: 8 },
-  // The .status-{lost,found,reunited} pills; status becomes a mono wall label.
-  { name: 'status-pill', pattern: /\bstatus-(?:lost|found|reunited)\b/g, baseline: 3 },
-];
+const LEGACY = [];
 
 const RULES = {
   palette: {
     title: 'Hardcoded Tailwind palette utilities',
     doc: 'DESIGN.md → Colors → The One Pen Rule. Route every colour through the tokens; status is text-destructive / text-success / text-info.',
+  },
+  'raw-white': {
+    title: 'Raw white or black',
+    doc: 'DESIGN.md → Colors → The Tinted Paper Rule: a surface is paper at a tint (bg-background / bg-card / bg-muted), never white; text on the ink is text-primary-foreground.',
+  },
+  'hex-literal': {
+    title: 'Hex colour literal in markup',
+    doc: 'DESIGN.md → Colors: every colour is a token in globals.css. A one-off hex in a className is a second palette.',
   },
   'flat-paper': {
     title: 'Shadow on a content surface',
@@ -169,6 +149,14 @@ const RULES = {
   'no-entrance': {
     title: 'Content animates itself in',
     doc: 'DESIGN.md → Motion: content does not animate itself in. Hover, focus and loading indicators move; the page does not.',
+  },
+  'no-emoji': {
+    title: 'Emoji as an icon, logo or illustration',
+    doc: "DESIGN.md → Do's and Don'ts: no emoji as icons, logos or empty-state art. The mark, wall labels and honest empty states do that work.",
+  },
+  'status-pill': {
+    title: 'A .status-{lost,found,reunited} pill',
+    doc: 'DESIGN.md → Colors → The Status Label Rule: status is <StatusBadge>, a label-mono in the signal token, never a pill.',
   },
   'css-gradient': {
     title: 'Gradient in globals.css',
@@ -318,7 +306,13 @@ function scan(rule, re, { transform } = {}) {
 // palette — The One Pen Rule.
 scan('palette', new RegExp(`\\b(?:${PALETTE_PREFIXES})-(?:${PALETTE_FAMILIES.join('|')})-[0-9]{2,3}\\b`, 'g'));
 
-// flat-paper — guarded by the shadow ratchet until the legacy call sites are gone.
+// raw-white — The Tinted Paper Rule. `bg-white` is never paper.
+scan('raw-white', new RegExp(`\\b(?:${PALETTE_PREFIXES})-(?:white|black)\\b`, 'g'));
+
+// hex-literal — a `[#abc123]` arbitrary colour in a className is a second palette.
+scan('hex-literal', /\[#[0-9a-fA-F]{3,8}\]/g);
+
+// flat-paper — The Flat Paper Rule and The Two Sheets Rule.
 scan('flat-paper', /(?<![\w-])(?:[\w-]+:)*shadow-(?:2xs|xs|sm|md|lg|xl|2xl|\[[^\]]*\])(?![\w-])/g);
 
 // no-gradient — utilities and raw CSS functions in markup.
@@ -354,6 +348,13 @@ scan(
   'no-entrance',
   /(?<![\w-])(?:[\w-]+:)*animate-(?:fade-in(?:-up|-down)?|slide-in-[\w-]+|glow-pulse|shimmer|marquee)(?![\w-])/g,
 );
+
+// no-emoji — pictographs in markup. Typographic marks (· — ← →) are not
+// Extended_Pictographic and pass.
+scan('no-emoji', /\p{Extended_Pictographic}/gu);
+
+// status-pill — the retired .status-{lost,found,reunited} classes.
+scan('status-pill', /\bstatus-(?:lost|found|reunited)\b/g);
 
 // css-gradient / css-shadow — the stylesheet itself. The paper grain is a
 // feTurbulence data URI and contains no `gradient(`; the only box-shadow

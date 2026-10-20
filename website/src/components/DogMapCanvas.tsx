@@ -6,6 +6,7 @@ import L from 'leaflet';
 import { useEffect, useMemo, useState } from 'react';
 import { MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import Link from 'next/link';
+import StatusBadge from '@/components/StatusBadge';
 import { clusterPoints } from '@/lib/cluster';
 import type { Dog, DogStatus } from '@/lib/types';
 
@@ -29,8 +30,10 @@ function buildClusterIcon(count: number): L.DivIcon {
  * bundled icon images by relative URL, which breaks under bundlers.
  *
  * `divIcon` takes a raw HTML string, so nothing dynamic is interpolated into
- * it — the three variants are constants and the colour lives in a stylesheet
- * class. Built once at module load rather than per marker per render.
+ * it — the three variants are constants and the fill lives in a stylesheet
+ * class (lost: ink disc, found: paper disc with an ink ring, reunited: tinted
+ * disc with a muted ring). Built once at module load rather than per marker
+ * per render.
  */
 const PIN_ICONS: Record<DogStatus, L.DivIcon> = {
   lost: buildPin('dog-pin__dot--lost'),
@@ -41,7 +44,7 @@ const PIN_ICONS: Record<DogStatus, L.DivIcon> = {
 function buildPin(modifier: 'dog-pin__dot--lost' | 'dog-pin__dot--found' | 'dog-pin__dot--reunited'): L.DivIcon {
   return L.divIcon({
     className: 'dog-pin',
-    html: `<span class="dog-pin__dot ${modifier}">🐕</span>`,
+    html: `<span class="dog-pin__dot ${modifier}"></span>`,
     iconSize: [34, 34],
     iconAnchor: [17, 34],
     popupAnchor: [0, -32],
@@ -96,11 +99,16 @@ function ClusteredMarkers({ dogs }: { dogs: PinnedDog[] }) {
           const dog = cluster.points[0].dog;
           return (
             <Marker key={dog.id} position={[dog.location.lat, dog.location.lng]} icon={PIN_ICONS[dog.status]}>
+              {/* A notebook card: the catalogue line, the name in Fraunces, the place. */}
               <Popup>
-                <strong className="block text-base">{dog.name}</strong>
-                <span className="block text-orange-600">{dog.breed}</span>
-                <span className="block text-gray-600">{dog.location.address}</span>
-                <Link href={`/dogs/${dog.id}`} className="mt-2 inline-block font-medium text-orange-600 underline">
+                <span className="label-mono flex flex-wrap items-center gap-x-2">
+                  <span>{dog.breed}</span>
+                  <span aria-hidden="true">·</span>
+                  <StatusBadge status={dog.status} />
+                </span>
+                <strong className="text-card-title mt-1 block text-foreground">{dog.name}</strong>
+                <span className="mt-1 block text-sm text-muted-foreground">{dog.location.address}</span>
+                <Link href={`/dogs/${dog.id}`} className="ink-underline mt-3 inline-block text-sm font-medium text-primary">
                   View details
                 </Link>
               </Popup>
@@ -138,7 +146,8 @@ export default function DogMapCanvas({ dogs }: { dogs: Dog[] }) {
       center={[39.8283, -98.5795]}
       zoom={4}
       scrollWheelZoom
-      className="h-[500px] w-full rounded-xl z-0"
+      // The map is a figure, like the photo plates: square corners and a hairline.
+      className="z-0 h-[500px] w-full border border-border"
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

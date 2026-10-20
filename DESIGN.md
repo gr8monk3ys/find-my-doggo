@@ -355,7 +355,7 @@ Under `prefers-reduced-motion` every animation and transition collapses to `0.01
 
 ## Enforcement
 
-Nine of the rules above are machine-checked, so breaking them fails the build the way a type error does. `website/scripts/check-design-system.mjs` runs in CI right after `lint`; run it locally from `website/` with:
+Thirteen of the rules above are machine-checked, so breaking them fails the build the way a type error does. `website/scripts/check-design-system.mjs` runs in CI right after `lint`; run it locally from `website/` with:
 
 ```bash
 npm run design:check                         # grouped, readable report
@@ -364,20 +364,24 @@ node scripts/check-design-system.mjs --json  # machine output
 
 It reads `src/**/*.tsx` and `src/app/globals.css` (no dependencies, well under a second) and enforces:
 
-| Rule             | What fails                                                                                                                                                                                    |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `palette`        | `bg-/text-/border-/from-/…-{slate,zinc,neutral,stone,amber,yellow,lime,emerald,teal,cyan,sky,indigo,violet,purple,fuchsia,pink,rose}-NNN` anywhere in `src/`. Gray, orange, red, green and blue join this list as their ratchets reach zero. |
-| `flat-paper`     | `shadow-{2xs…2xl}` or an arbitrary `shadow-[…]` outside the header sheet. _Active once the `shadow` ratchet reaches zero._                                                                    |
-| `no-gradient`    | `bg-gradient-to-*`, `bg-linear-*`, `bg-radial`, `bg-conic`, or a `*-gradient(` in markup. _Active once the `gradient-utility` ratchet reaches zero._                                          |
-| `one-glass`      | `backdrop-blur` outside the header.                                                                                                                                                           |
-| `serif-speaks`   | `font-display` in a `className` on anything but `h1`–`h6`, a `*Title` primitive, or an element marked `data-voice="display"`.                                                                 |
-| `tiny-font`      | `text-[Npx]` below 12px.                                                                                                                                                                      |
-| `no-entrance`    | An `initial={{ opacity: 0` mount reveal, or an entrance keyframe by name (`animate-fade-in*`, `animate-slide-in-*`, `animate-glow-pulse`, `animate-shimmer`, `animate-marquee`).            |
-| `css-gradient`   | A `*-gradient(` anywhere in `globals.css`.                                                                                                                                                    |
-| `css-shadow`     | A `box-shadow` in `globals.css` outside the `cta-primary` utility (`box-shadow: none` is a removal and is allowed).                                                                            |
-| `legacy-ratchet` | Any retired name still in the `LEGACY` table appearing more often than its recorded baseline.                                                                                                 |
+| Rule             | What fails                                                                                                                                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `palette`        | `bg-/text-/border-/from-/…-{slate,gray,zinc,neutral,stone,red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-NNN` anywhere in `src/`: every Tailwind hue. |
+| `raw-white`      | `bg-white`, `text-white`, `bg-black`, … A surface is paper at a tint (`bg-background` / `bg-card` / `bg-muted`); text on the ink is `text-primary-foreground`.                                           |
+| `hex-literal`    | An arbitrary `[#abc123]` colour in a `className`.                                                                                                                                                       |
+| `flat-paper`     | `shadow-{2xs…2xl}` or an arbitrary `shadow-[…]` outside the header sheet.                                                                                                                               |
+| `no-gradient`    | `bg-gradient-to-*`, `bg-linear-*`, `bg-radial`, `bg-conic`, or a `*-gradient(` in markup.                                                                                                               |
+| `one-glass`      | `backdrop-blur` outside the header.                                                                                                                                                                     |
+| `serif-speaks`   | `font-display` in a `className` on anything but `h1`–`h6`, a `*Title` primitive, or an element marked `data-voice="display"`.                                                                           |
+| `tiny-font`      | `text-[Npx]` below 12px.                                                                                                                                                                                |
+| `no-entrance`    | An `initial={{ opacity: 0` mount reveal, or an entrance keyframe by name (`animate-fade-in*`, `animate-slide-in-*`, `animate-glow-pulse`, `animate-shimmer`, `animate-marquee`).                      |
+| `no-emoji`       | Any `Extended_Pictographic` character in a `.tsx` file. Typographic marks (`·`, `—`, `←`, `→`) are not emoji and pass.                                                                                   |
+| `status-pill`    | The retired `.status-{lost,found,reunited}` classes. Status is `<StatusBadge>`, a `label-mono` in the signal token.                                                                                      |
+| `css-gradient`   | A `*-gradient(` anywhere in `globals.css`.                                                                                                                                                              |
+| `css-shadow`     | A `box-shadow` in `globals.css` outside the `cta-primary` utility (`box-shadow: none` is a removal and is allowed).                                                                                      |
+| `legacy-ratchet` | Any retired name in the `LEGACY` table appearing more often than its recorded baseline. The table is empty today.                                                                                       |
 
-The ratchet exists because the notebook lands in two PRs. Tokens, fonts, primitives, the brand, the shell and this document came first (2026-10-13) and recorded the baselines of what the page compositions still carry: `brand-orange` 57, `neutral-grey` 95, `status-hue` 40, `raw-white` 24, `hex-literal` 12, `shadow` 6, `gradient-utility` 1, `emoji` 8, `status-pill` 3. The pages PR takes every entry to zero and deletes it, at which point the matching hard rule takes over and the orange, grey, red, green and blue families join `palette`. Each legacy name's count may only fall; the PR that removes uses lowers the baseline.
+The `LEGACY` ratchet is how a rule is introduced to code that does not yet obey it: a retired name goes in with the count it has on the day, the count may only fall, and the entry is deleted at zero, when the matching hard rule takes over. The notebook landed that way in two PRs on 2026-10-13. The foundation PR (tokens, fonts, primitives, brand, shell, this document) recorded what the orange page compositions still carried — `brand-orange` 57, `neutral-grey` 95, `status-hue` 40, `raw-white` 24, `hex-literal` 12, `shadow` 6, `gradient-utility` 1, `emoji` 8, `status-pill` 3 — and the pages PR took every entry to zero and deleted it. That is why `palette` covers every Tailwind hue and why `raw-white`, `hex-literal`, `no-emoji` and `status-pill` exist as rules rather than counts.
 
 What is _not_ checked is not thereby allowed — wall labels before sections, square plates, status as a label and the one-button-per-view rule still need a human eye.
 
