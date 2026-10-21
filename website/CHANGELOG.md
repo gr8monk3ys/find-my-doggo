@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.4.0](https://github.com/gr8monk3ys/find-my-doggo/compare/v0.3.0...v0.4.0) (2026-10-21)
+
+
+### Features
+
+* **ops:** health detail, env check, deploy watchdog, launch checklist, journey smoke ([#54](https://github.com/gr8monk3ys/find-my-doggo/issues/54)) ([6deb39e](https://github.com/gr8monk3ys/find-my-doggo/commit/6deb39e9a26864c58c80565d3488fceb564d6a59))
+* same-origin guard on report and message submissions ([#55](https://github.com/gr8monk3ys/find-my-doggo/issues/55)) ([8bb73ce](https://github.com/gr8monk3ys/find-my-doggo/commit/8bb73cedbb8033af6aacc1cbd58988b12a1bc80f))
+
+
+### Bug Fixes
+
+* **api:** refuse cross-site reports and messages with the same-origin guard ([8bb73ce](https://github.com/gr8monk3ys/find-my-doggo/commit/8bb73cedbb8033af6aacc1cbd58988b12a1bc80f))
+* **deps:** update vite to 8.3.5 ([#57](https://github.com/gr8monk3ys/find-my-doggo/issues/57)) ([d195fa0](https://github.com/gr8monk3ys/find-my-doggo/commit/d195fa03febd2fe1f57027446fc12e2e9ed710ce))
+* **deps:** update vite to 8.3.5 (GHSA alerts 154-156) ([d195fa0](https://github.com/gr8monk3ys/find-my-doggo/commit/d195fa03febd2fe1f57027446fc12e2e9ed710ce))
+
 ## [0.3.0](https://github.com/gr8monk3ys/find-my-doggo/compare/v0.2.0...v0.3.0) (2026-10-20)
 
 
