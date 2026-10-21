@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createDog, listDogs } from '@/lib/dogs';
 import { geocode } from '@/lib/geocode';
 import { checkRateLimit, clientKey } from '@/lib/rate-limit';
+import { isSameOrigin } from '@/lib/same-origin';
 import { saveImage } from '@/lib/storage';
 import type { DogStatus } from '@/lib/types';
 import { fieldErrors, reportSchema, validateImage } from '@/lib/validation';
@@ -31,6 +32,10 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) {
+    return NextResponse.json({ error: 'Reports can only be submitted from this site.' }, { status: 403 });
+  }
+
   const limit = checkRateLimit(`report:${clientKey(request)}`, REPORTS_PER_HOUR, HOUR_MS);
   if (!limit.ok) {
     return NextResponse.json(
