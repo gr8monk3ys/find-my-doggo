@@ -15,6 +15,8 @@ npm run seed                # optional: six sample listings into data/dev.db
 npm run dev                 # localhost:3000; no env needed (SQLite file + disk uploads)
 npm run lint && npm run typecheck && npm test
 npm run build && npm run test:e2e   # Playwright against `next start` on a throwaway data/e2e.db
+npm run check:env                   # env audit (set/unset only); `-- --production` fails on missing prod vars
+npm run smoke -- http://localhost:3000   # read-only: pages + robots + sitemap + /api/health, prints feature flags
 ```
 
 `DISABLE_GEOCODING=1` keeps every test run off Nominatim. `website/.env.example` lists every
@@ -23,6 +25,21 @@ variable; all of them are optional locally.
 CI (`.github/workflows/ci.yml`) runs two jobs on every PR, both required by master's branch
 protection: `Lint, typecheck, unit tests, build` and `End-to-end tests`. Dependabot opens
 security updates only (version bumps are off, `.github/dependabot.yml`).
+
+Playwright locally: CI downloads Chromium, but a developer machine can set
+`PLAYWRIGHT_USE_SYSTEM_CHROME=1` (selects the `chrome` project, `channel: 'chrome'`) or
+`PLAYWRIGHT_CHROMIUM_PATH=<exe>` instead of `playwright install`. `E2E_PORT` moves the e2e
+server off 3100. Seed the e2e database first (`DATABASE_URL=file:./data/e2e.db npm run seed`):
+`browse`, `smoke` and the sitemap check look for the seeded `sample-luna`. Windows only: the
+file-DB unit suites report an `afterAll` EPERM on temp-dir cleanup; every test passes and CI is
+clean, so leave them alone.
+
+`.github/workflows/deploy-watchdog.yml` runs daily (and on `workflow_dispatch`): it fails when
+the newest master commit older than 45 minutes has no successful Vercel Production deployment,
+except that while the repo has never had a Vercel deployment at all (the only records are the
+2019 Heroku ones) it warns and passes. When the repository variable `PRODUCTION_URL` is set it
+also runs `scripts/smoke.mjs` against it. There is no deployment yet; `docs/LAUNCH_CHECKLIST.md`
+is the ordered owner to-do list (dashboard steps, env audit, smoke, follow-ups).
 
 ## Releases
 
@@ -61,7 +78,12 @@ bumps major; `Release-As: x.y.z` in a commit footer forces a version.
 - `website/src/components/` — navbar, footer, cards, map (`DogMap` → client-only `DogMapCanvas`),
   forms
 - `website/tests/unit` (Vitest, node environment), `website/tests/e2e` (Playwright, production
-  build on port 3100), `website/scripts/seed.mjs`
+  build on port 3100: `smoke.spec.ts` renders every route with a clean console, `journey.spec.ts`
+  walks report → browse → map → message in order, the rest cover each step), `website/scripts/`:
+  `seed.mjs`, `check-env.mjs` (table from `scripts/lib/env-spec.mjs`, unit-tested against
+  `.env.example`), `smoke.mjs`, `check-design-system.mjs`, `generate-brand.mjs`
+- `docs/LAUNCH_CHECKLIST.md` — what the owner must do in dashboards before a public deploy, what
+  is already done, and the follow-ups (Sentry, shared rate-limit store, moderation, expiry)
 - `docs/agents/` — issue tracker, triage labels and domain-doc conventions for agents
 
 ## Gotchas
@@ -85,6 +107,8 @@ bumps major; `Release-As: x.y.z` in a commit footer forces a version.
   Skipped or failed sends leave `delivered = 0` on the `messages` / `feedback` row
   (`GET /api/feedback?undelivered=1` lists them). `clientKey` keys the per-client limiter on
   `x-real-ip` or the last hop of `x-forwarded-for`, never the client-supplied first hop.
+- Adding an environment variable means three edits: `.env.example`, `scripts/lib/env-spec.mjs`
+  (the unit test fails until the two agree) and, if copy depends on it, `lib/features.ts`.
 - The app is in a private beta with no public deployment. The footer carries the one beta notice
   and `supportEmail()` (default `support@lscaturchio.xyz`; an invalid `SUPPORT_EMAIL` throws on
   first render on purpose). `GET /api/feedback` is a 404 unless `FEEDBACK_REVIEW_TOKEN` is set;

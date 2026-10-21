@@ -17,6 +17,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "design:check": "node scripts/check-design-system.mjs",
+    "check:env": "node scripts/check-env.mjs",
+    "smoke": "node scripts/smoke.mjs",
     "brand:generate": "node scripts/generate-brand.mjs",
     "seed": "node scripts/seed.mjs"
   },

@@ -95,20 +95,48 @@ Run from `website/`:
 | `npm run typecheck` | `tsc --noEmit`                                       |
 | `npm test`          | Vitest unit tests                                    |
 | `npm run test:e2e`  | Playwright end-to-end tests (needs a build first)    |
+| `npm run check:env` | Environment audit; `-- --production` fails on missing production values |
+| `npm run smoke -- <url>` | Read-only smoke against a running deployment (pages + `/api/health`) |
 
 ## Deploying
 
-The app is a standard Next.js project rooted at `website/`.
+Nothing is deployed yet; `docs/LAUNCH_CHECKLIST.md` is the ordered list of
+dashboard steps that gets from here to a public URL, and the notes below are the
+repo-side facts it relies on.
 
-1. Create a libSQL database (Turso is the hosted option) and set `DATABASE_URL`
-   and `DATABASE_AUTH_TOKEN`. Tables are created on first request.
-2. Create a Vercel Blob store and set `BLOB_READ_WRITE_TOKEN`, or photos will be
-   written to a filesystem that does not survive a redeploy.
-3. Set `RESEND_API_KEY` and `NOTIFY_FROM_EMAIL` so enquiries actually reach the
-   people who posted. Without them, messages are stored but nobody is notified.
-4. Set `GEOCODER_USER_AGENT` to something identifying with a contact address —
-   Nominatim's usage policy requires it.
-5. Check `GET /api/health` after deploying.
+**Vercel project.** Import the GitHub repository with **Root Directory `website`**
+(there is no root `package.json`), framework Next.js, Node 22. Vercel then records
+each deploy as a GitHub Deployment, which is what `.github/workflows/deploy-watchdog.yml`
+checks daily: it warns while no Vercel project is connected, and fails once one is
+and master has no successful Production deployment.
+
+**Environment.** Every variable the app reads, with what breaks without it:
+
+| Variable                | Needed in           | Without it                                                        |
+| ----------------------- | ------------------- | ----------------------------------------------------------------- |
+| `DATABASE_URL`          | preview, production | Falls back to a SQLite file the serverless instance loses          |
+| `DATABASE_AUTH_TOKEN`   | preview, production | Turso refuses the connection; `/api/health` reports it unreachable |
+| `BLOB_READ_WRITE_TOKEN` | preview, production | Photos go to local disk and vanish on redeploy                     |
+| `RESEND_API_KEY`        | production          | Enquiries, contact messages and feedback are stored, not emailed  |
+| `NOTIFY_FROM_EMAIL`     | production          | Same: email delivery needs both (on a domain verified in Resend)   |
+| `GEOCODER_USER_AGENT`   | production          | Nominatim policy violation; include a contact address              |
+| `GEOCODER_URL`          | optional            | Public Nominatim is used (about one request per second)            |
+| `DISABLE_GEOCODING`     | optional            | Geocoding is on; `1` turns it off (tests, offline)                 |
+| `NEXT_PUBLIC_SITE_URL`  | optional            | Inferred from Vercel; set it once a custom domain is attached      |
+| `SUPPORT_EMAIL`         | optional            | Defaults to `support@lscaturchio.xyz`                              |
+| `FEEDBACK_REVIEW_TOKEN` | optional            | `GET /api/feedback` is a 404                                       |
+
+`npm run check:env -- --production` (from `website/`, after `vercel env pull
+.env.local --environment=production`) prints that table against the pulled
+values, set/unset only, and exits 1 while anything production needs is missing or
+malformed. The same table lives in `website/scripts/lib/env-spec.mjs` and a unit
+test keeps it equal to `.env.example`.
+
+**After deploying.** `npm run smoke -- https://<url>` fetches every public page,
+`robots.txt`, the sitemap and `GET /api/health`, fails on any non-2xx or a health
+status other than `ok`, and prints the `features` flags so you can see which of the
+integrations above the deployment actually has. Set the repository variable
+`PRODUCTION_URL` and the watchdog runs the same smoke every day.
 
 ## Known limitations
 
