@@ -13,6 +13,9 @@ defaults:
   run:
     working-directory: website
 
+permissions:
+  contents: read
+
 jobs:
   check:
     name: Lint, typecheck, unit tests, build
