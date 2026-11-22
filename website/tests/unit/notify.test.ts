@@ -1,3 +1,5 @@
+import { z } from 'zod';
+import { fromAny } from '@total-typescript/shoehorn';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { forwardEnquiry, sendEmail } from '@/lib/notify';
 
@@ -34,8 +36,8 @@ function configureMailer() {
 }
 
 function sentBody(fetchMock: ReturnType<typeof vi.fn>) {
-  const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
-  return JSON.parse(String(init.body));
+  const [, init] = fromAny<[string, RequestInit], unknown>(fetchMock.mock.calls[0]);
+  return z.record(z.string(), z.unknown()).parse(JSON.parse(String(init.body)));
 }
 
 describe('sendEmail', () => {

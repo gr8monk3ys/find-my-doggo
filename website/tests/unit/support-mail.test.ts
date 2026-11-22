@@ -1,6 +1,8 @@
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { z } from 'zod';
+import { fromAny } from '@total-typescript/shoehorn';
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Point the client at a throwaway SQLite file before the module is loaded.
@@ -29,13 +31,13 @@ function configureMailer() {
 }
 
 function sentBody(fetchMock: ReturnType<typeof vi.fn>, call = 0) {
-  const [, init] = fetchMock.mock.calls[call] as unknown as [string, RequestInit];
-  return JSON.parse(String(init.body));
+  const [, init] = fromAny<[string, RequestInit], unknown>(fetchMock.mock.calls[call]);
+  return z.record(z.string(), z.unknown()).parse(JSON.parse(String(init.body)));
 }
 
 async function countKind(kind: string): Promise<number> {
   const { rows } = await getClient().execute({ sql: 'SELECT COUNT(*) AS n FROM email_sends WHERE kind = ?', args: [kind] });
-  return Number(rows[0].n);
+  return Number(rows[0]?.n);
 }
 
 async function fillWindow(kind: 'contact' | 'feedback') {

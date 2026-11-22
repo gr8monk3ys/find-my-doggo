@@ -29,18 +29,19 @@ export function clusterPoints<T extends ClusterPoint>(points: T[], radius: numbe
   const clusters: Cluster<T>[] = [];
   const claimed = new Array<boolean>(points.length).fill(false);
 
-  for (let i = 0; i < points.length; i++) {
+  for (const [i, anchor] of points.entries()) {
     if (claimed[i]) continue;
     claimed[i] = true;
-    const group: T[] = [points[i]];
+    const group: T[] = [anchor];
 
     for (let j = i + 1; j < points.length; j++) {
-      if (claimed[j]) continue;
-      const dx = points[i].x - points[j].x;
-      const dy = points[i].y - points[j].y;
+      const other = points[j];
+      if (other === undefined || claimed[j]) continue;
+      const dx = anchor.x - other.x;
+      const dy = anchor.y - other.y;
       if (Math.sqrt(dx * dx + dy * dy) <= radius) {
         claimed[j] = true;
-        group.push(points[j]);
+        group.push(other);
       }
     }
 

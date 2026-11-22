@@ -13,6 +13,7 @@ cd website
 npm ci                      # Node 22 + npm 10, matching CI
 npm run seed                # optional: six sample listings into data/dev.db
 npm run dev                 # localhost:3000; no env needed (SQLite file + disk uploads)
+npm run check                 # lint + design:check + typecheck + depcruise (layering, no cycles) + tests + build
 npm run lint && npm run typecheck && npm test
 npm run build && npm run test:e2e   # Playwright against `next start` on a throwaway data/e2e.db
 npm run check:env                   # env audit (set/unset only); `-- --production` fails on missing prod vars
