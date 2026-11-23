@@ -14,15 +14,16 @@ function block(selector: string): Record<string, string> {
   const m = CSS.match(new RegExp(`\\n\\s*${selector.replace('.', '\\.')}\\s*\\{([^}]+)\\}`));
   if (!m) throw new Error(`no ${selector} block`);
   const out: Record<string, string> = {};
-  for (const line of m[1].split('\n')) {
+  for (const line of (m[1] ?? '').split('\n')) {
     const kv = line.match(/^\s*(--[\w-]+):\s*([^;]+);/);
-    if (kv) out[kv[1]] = kv[2].trim();
+    const [, name, value] = kv ?? [];
+    if (name && value) out[name] = value.trim();
   }
   return out;
 }
 
 function hslToRgb(triplet: string): [number, number, number] {
-  const [h, s, l] = triplet.replace(/%/g, '').split(/\s+/).map(Number);
+  const [h = 0, s = 0, l = 0] = triplet.replace(/%/g, '').split(/\s+/).map(Number);
   const S = s / 100;
   const L = l / 100;
   const k = (n: number) => (n + h / 30) % 12;
@@ -32,17 +33,19 @@ function hslToRgb(triplet: string): [number, number, number] {
 }
 
 const lum = ([r, g, b]: [number, number, number]) => {
-  const c = [r, g, b].map((v) => {
+  const [cr = 0, cg = 0, cb = 0] = [r, g, b].map((v) => {
     v /= 255;
     return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
   });
-  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  return 0.2126 * cr + 0.7152 * cg + 0.0722 * cb;
 };
 
 export const contrast = (a: string, b: string) => {
-  const [l1, l2] = [lum(hslToRgb(a)), lum(hslToRgb(b))].sort((x, y) => y - x);
+  const [l1 = 0, l2 = 0] = [lum(hslToRgb(a)), lum(hslToRgb(b))].sort((x, y) => y - x);
   return (l1 + 0.05) / (l2 + 0.05);
 };
+
+const tone = (value: string | undefined) => (value ?? '').split('/')[0] ?? '';
 
 const PAIRS: Array<[string, string, number]> = [
   ['--foreground', '--background', 4.5],
@@ -82,7 +85,7 @@ for (const [theme, selector] of [
       it(`${fg} on ${bg} ≥ ${floor}:1`, () => {
         expect(t[fg]).toBeDefined();
         expect(t[bg]).toBeDefined();
-        expect(contrast(t[fg].split('/')[0], t[bg].split('/')[0])).toBeGreaterThanOrEqual(floor);
+        expect(contrast(tone(t[fg]), tone(t[bg]))).toBeGreaterThanOrEqual(floor);
       });
     }
   });

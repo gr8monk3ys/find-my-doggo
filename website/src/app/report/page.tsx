@@ -1,5 +1,6 @@
 'use client';
 
+import { readApiResponse } from '@/lib/api-response';
 import { useEffect, useRef, useState } from 'react';
 import { Button, ButtonLink } from '@/components/ui/button';
 import { Field, Input, Textarea } from '@/components/ui/field';
@@ -128,7 +129,7 @@ export default function ReportPage() {
 
     try {
       const response = await fetch('/api/dogs', { method: 'POST', body });
-      const payload = await response.json().catch(() => ({}));
+      const payload = await readApiResponse(response);
 
       if (!response.ok) {
         setFieldErrors(payload.fields ?? {});

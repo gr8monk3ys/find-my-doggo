@@ -1,7 +1,12 @@
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { z } from 'zod';
+import { fromAny } from '@total-typescript/shoehorn';
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+const JsonObject = z.record(z.string(), z.unknown());
+const FeedbackList = z.object({ feedback: z.array(JsonObject) });
 
 // Point the client at a throwaway SQLite file before the module is loaded.
 const dir = mkdtempSync(path.join(tmpdir(), 'fmd-feedback-'));
@@ -83,13 +88,13 @@ describe('POST /api/feedback', () => {
   it('stores an omitted or blank email as null', async () => {
     expect((await post({ ...VALID, email: '' })).status).toBe(201);
     const rows = await getClient().execute('SELECT email FROM feedback');
-    expect(rows.rows[0].email).toBeNull();
+    expect(rows.rows[0]?.email).toBeNull();
   });
 
   it('rejects a short message, a bad email and a page that is not a path', async () => {
     const response = await post({ page: 'https://evil.example/', message: 'too short', email: 'nope' });
     expect(response.status).toBe(400);
-    const body = await response.json();
+    const body = z.object({ fields: z.record(z.string(), z.unknown()) }).parse(await response.json());
     expect(Object.keys(body.fields).sort()).toEqual(['email', 'message', 'page']);
   });
 
@@ -100,7 +105,7 @@ describe('POST /api/feedback', () => {
   it('refuses a cross-site request', async () => {
     expect((await post(VALID, { 'sec-fetch-site': 'cross-site' })).status).toBe(403);
     expect((await post(VALID, { origin: 'https://evil.example' })).status).toBe(403);
-    expect((await getClient().execute('SELECT COUNT(*) AS n FROM feedback')).rows[0].n).toBe(0);
+    expect((await getClient().execute('SELECT COUNT(*) AS n FROM feedback')).rows[0]?.n).toBe(0);
   });
 
   it('accepts a request with no Origin or Sec-Fetch-Site at all (a non-browser client)', async () => {
@@ -133,9 +138,9 @@ describe('POST /api/feedback', () => {
     expect(await response.json()).toEqual({ ok: true, delivered: true });
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    const [url, init] = fromAny<[string, RequestInit], unknown>(fetchMock.mock.calls[0]);
     expect(url).toBe('https://api.resend.com/emails');
-    const sent = JSON.parse(String(init.body));
+    const sent = JsonObject.parse(JSON.parse(String(init.body)));
     expect(sent).toMatchObject({
       to: 'support@lscaturchio.xyz',
       reply_to: 'tester@example.com',
@@ -144,7 +149,7 @@ describe('POST /api/feedback', () => {
     expect(sent.text).toContain(VALID.message);
 
     const rows = await getClient().execute('SELECT delivered FROM feedback');
-    expect(rows.rows[0].delivered).toBe(1);
+    expect(rows.rows[0]?.delivered).toBe(1);
   });
 
   it('stops emailing feedback after its hourly cap, keeps storing, and still delivers contact mail', async () => {
@@ -187,7 +192,7 @@ describe('POST /api/feedback', () => {
     expect(await contact.json()).toEqual({ ok: true, delivered: true });
     expect(fetchMock).toHaveBeenCalledTimes(SUPPORT_EMAILS_PER_HOUR + 1);
     const messages = await getClient().execute('SELECT delivered FROM messages');
-    expect(messages.rows[0].delivered).toBe(1);
+    expect(messages.rows[0]?.delivered).toBe(1);
   });
 
   it('leaves delivered = 0 on a contact message when no mailer is configured', async () => {
@@ -205,7 +210,7 @@ describe('POST /api/feedback', () => {
       }),
     );
     expect(await contact.json()).toEqual({ ok: true, delivered: false });
-    expect((await getClient().execute('SELECT delivered FROM messages')).rows[0].delivered).toBe(0);
+    expect((await getClient().execute('SELECT delivered FROM messages')).rows[0]?.delivered).toBe(0);
   });
 });
 
@@ -229,10 +234,10 @@ describe('GET /api/feedback', () => {
 
     const response = await get({ authorization: 'Bearer correct-horse' });
     expect(response.status).toBe(200);
-    const { feedback } = await response.json();
+    const { feedback } = FeedbackList.parse(await response.json());
     expect(feedback).toHaveLength(2);
     expect(feedback[0]).toMatchObject({ page: '/map', status: 'new', email: null, delivered: false });
-    expect(feedback[1].message).toMatch(/^First note/);
+    expect(feedback[1]?.message).toMatch(/^First note/);
   });
 
   it('narrows to the notes that were never emailed with ?undelivered=1', async () => {
@@ -246,16 +251,16 @@ describe('GET /api/feedback', () => {
     delete process.env.RESEND_API_KEY;
     await post({ ...VALID, page: '/map', message: 'Skipped note, long enough to pass validation.' }, { 'x-real-ip': '203.0.113.50' });
 
-    const all = await (await get({ authorization: 'Bearer correct-horse' })).json();
+    const all = FeedbackList.parse(await (await get({ authorization: 'Bearer correct-horse' })).json());
     expect(all.feedback).toHaveLength(2);
 
     const response = await GET(
       new Request(`${ORIGIN}/api/feedback?undelivered=1`, { headers: { authorization: 'Bearer correct-horse' } }),
     );
     expect(response.status).toBe(200);
-    const { feedback } = await response.json();
+    const { feedback } = FeedbackList.parse(await response.json());
     expect(feedback).toHaveLength(1);
     expect(feedback[0]).toMatchObject({ page: '/map', delivered: false });
-    expect(feedback[0].message).toMatch(/^Skipped note/);
+    expect(feedback[0]?.message).toMatch(/^Skipped note/);
   });
 });

@@ -56,7 +56,7 @@ function report(headers: Record<string, string>) {
 }
 
 async function count(table: 'dogs' | 'messages') {
-  return Number((await getClient().execute(`SELECT COUNT(*) AS n FROM ${table}`)).rows[0].n);
+  return Number((await getClient().execute(`SELECT COUNT(*) AS n FROM ${table}`)).rows[0]?.n);
 }
 
 beforeEach(async () => {

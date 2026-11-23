@@ -38,11 +38,11 @@ export async function saveImage(file: File): Promise<string> {
 
 const FILENAME_PATTERN = /^[0-9a-f-]{36}\.(jpg|png|webp)$/;
 
-const CONTENT_TYPES: Record<string, string> = {
-  jpg: 'image/jpeg',
-  png: 'image/png',
-  webp: 'image/webp',
-};
+const CONTENT_TYPES = new Map([
+  ['jpg', 'image/jpeg'],
+  ['png', 'image/png'],
+  ['webp', 'image/webp'],
+]);
 
 /**
  * Only names this module could itself have generated are servable, so a crafted
@@ -50,9 +50,7 @@ const CONTENT_TYPES: Record<string, string> = {
  */
 export function resolveLocalUpload(filename: string): { path: string; contentType: string } | null {
   if (!FILENAME_PATTERN.test(filename)) return null;
-  const extension = filename.split('.').pop()!;
-  return {
-    path: path.join(LOCAL_UPLOAD_DIR, filename),
-    contentType: CONTENT_TYPES[extension],
-  };
+  const contentType = CONTENT_TYPES.get(filename.split('.').pop() ?? '');
+  if (!contentType) return null;
+  return { path: path.join(LOCAL_UPLOAD_DIR, filename), contentType };
 }

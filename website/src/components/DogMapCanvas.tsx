@@ -95,8 +95,9 @@ function ClusteredMarkers({ dogs }: { dogs: PinnedDog[] }) {
   return (
     <>
       {clusters.map((cluster) => {
-        if (cluster.points.length === 1) {
-          const dog = cluster.points[0].dog;
+        const [only] = cluster.points;
+        if (only && cluster.points.length === 1) {
+          const dog = only.dog;
           return (
             <Marker key={dog.id} position={[dog.location.lat, dog.location.lng]} icon={PIN_ICONS[dog.status]}>
               {/* A notebook card: the catalogue line, the name in Fraunces, the place. */}

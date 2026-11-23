@@ -87,7 +87,7 @@ describe('listDogs', () => {
   it('filters by status', async () => {
     const found = await listDogs({ status: 'found' });
     expect(found).toHaveLength(1);
-    expect(found[0].name).toBe('Bella');
+    expect(found[0]?.name).toBe('Bella');
   });
 
   it('searches name, breed, and address case-insensitively', async () => {

@@ -1,5 +1,6 @@
 'use client';
 
+import { readApiResponse } from '@/lib/api-response';
 import {
   createContext,
   type ButtonHTMLAttributes,
@@ -122,7 +123,7 @@ export function FeedbackDialog({ ref, triggerRef }: FeedbackDialogProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ page: window.location.pathname, message, email }),
       });
-      const payload = await response.json().catch(() => ({}));
+      const payload = await readApiResponse(response);
 
       if (!response.ok) {
         setFieldErrors(payload.fields ?? {});

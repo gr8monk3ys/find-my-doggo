@@ -20,9 +20,9 @@ describe('clusterPoints', () => {
     ];
     const clusters = clusterPoints(points, 40);
     expect(clusters).toHaveLength(1);
-    expect(clusters[0].points.map((p) => p.id).sort()).toEqual(['a', 'b', 'c']);
-    expect(clusters[0].x).toBeCloseTo(10 / 3);
-    expect(clusters[0].y).toBeCloseTo(10 / 3);
+    expect(clusters[0]?.points.map((p) => p.id).sort()).toEqual(['a', 'b', 'c']);
+    expect(clusters[0]?.x).toBeCloseTo(10 / 3);
+    expect(clusters[0]?.y).toBeCloseTo(10 / 3);
   });
 
   it('keeps points outside the radius in separate clusters', () => {
@@ -51,7 +51,7 @@ describe('clusterPoints', () => {
     ];
     const clusters = clusterPoints(points, 40);
     expect(clusters).toHaveLength(2);
-    expect(clusters[0].points.map((p) => p.id)).toEqual(['a', 'b']);
-    expect(clusters[1].points.map((p) => p.id)).toEqual(['c']);
+    expect(clusters[0]?.points.map((p) => p.id)).toEqual(['a', 'b']);
+    expect(clusters[1]?.points.map((p) => p.id)).toEqual(['c']);
   });
 });

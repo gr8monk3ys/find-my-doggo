@@ -1,5 +1,6 @@
 'use client';
 
+import { readApiResponse } from '@/lib/api-response';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Field, Input, Textarea } from '@/components/ui/field';
@@ -65,7 +66,7 @@ export default function MessageForm({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, dogId }),
       });
-      const payload = await response.json().catch(() => ({}));
+      const payload = await readApiResponse(response);
 
       if (!response.ok) {
         setFieldErrors(payload.fields ?? {});

@@ -19,7 +19,7 @@ function walk(dir: string): string[] {
 
 describe('self-hosted fonts', () => {
   it('references woff2 files that exist on disk', () => {
-    const srcs = [...FONTS_TS.matchAll(/(?:src|path):\s*'([^']+\.woff2)'/g)].map((m) => m[1]);
+    const srcs = [...FONTS_TS.matchAll(/(?:src|path):\s*'([^']+\.woff2)'/g)].map((m) => m[1] ?? '');
     expect(srcs.length).toBeGreaterThanOrEqual(5);
     for (const src of srcs) {
       expect({ src, exists: existsSync(join(ROOT, 'src/lib', src)) }).toEqual({ src, exists: true });
