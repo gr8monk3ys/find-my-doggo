@@ -9,6 +9,7 @@ there is no root `package.json`. npm, Node 22 (`engines` + `packageManager` in
 ## Run / test
 
 ```bash
+make verify                 # from the repo root: runs website's `npm run check`
 cd website
 npm ci                      # Node 22 + npm 10, matching CI
 npm run seed                # optional: six sample listings into data/dev.db
